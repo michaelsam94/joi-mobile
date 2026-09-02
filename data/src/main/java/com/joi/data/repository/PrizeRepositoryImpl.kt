@@ -11,6 +11,9 @@ import com.joi.domain.model.Prize
 import com.joi.domain.model.PrizeRedemption
 import com.joi.domain.repository.PrizeInput
 import com.joi.domain.repository.PrizeRepository
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 
 class PrizeRepositoryImpl(private val api: JoiApiService) : PrizeRepository {
 
@@ -38,4 +41,16 @@ class PrizeRepositoryImpl(private val api: JoiApiService) : PrizeRepository {
 
     override suspend fun redeemPrize(prizeId: String, userId: String): AppResult<PrizeRedemption> =
         apiCall { api.redeemPrize(prizeId, RedeemPrizeRequestDto(userId)) }.map { it.toDomain() }
+
+    override suspend fun uploadImage(bytes: ByteArray, mimeType: String): AppResult<String> {
+        val extension = when (mimeType) {
+            "image/png" -> "png"
+            "image/webp" -> "webp"
+            "image/gif" -> "gif"
+            else -> "jpg"
+        }
+        val body = bytes.toRequestBody(mimeType.toMediaTypeOrNull())
+        val part = MultipartBody.Part.createFormData("image", "upload.$extension", body)
+        return apiCall { api.uploadImage(part) }.map { it.url }
+    }
 }

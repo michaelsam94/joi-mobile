@@ -43,6 +43,7 @@ import com.joi.domain.usecase.SavePrizeUseCase
 import com.joi.domain.usecase.SendWeeklyReportNowUseCase
 import com.joi.domain.usecase.SetMemberActiveUseCase
 import com.joi.domain.usecase.UpdateMemberUseCase
+import com.joi.domain.usecase.UploadPrizeImageUseCase
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "joi_session")
 
@@ -103,4 +104,5 @@ class AppContainer(context: Context) {
     val savePrizeUseCase = SavePrizeUseCase(prizeRepository)
     val deletePrizeUseCase = DeletePrizeUseCase(prizeRepository)
     val redeemPrizeUseCase = RedeemPrizeUseCase(prizeRepository)
+    val uploadPrizeImageUseCase = UploadPrizeImageUseCase(prizeRepository)
 }

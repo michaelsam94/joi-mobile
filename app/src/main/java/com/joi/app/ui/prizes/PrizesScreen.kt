@@ -1,5 +1,7 @@
 package com.joi.app.ui.prizes
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -8,18 +10,22 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -28,8 +34,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -41,6 +49,9 @@ import com.joi.designsystem.components.JoiPrimaryButton
 import com.joi.designsystem.components.JoiTopBar
 import com.joi.designsystem.components.LoadingState
 import com.joi.domain.model.Prize
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /** The backend requires a full URL (`https://...`) for a prize's image, and a bare `example.com/x.jpg`
  * typed without a scheme isn't something Coil can load either — this fills in `https://` for
@@ -66,6 +77,7 @@ fun PrizesScreen(container: AppContainer, isModerator: Boolean) {
                 deletePrizeUseCase = container.deletePrizeUseCase,
                 redeemPrizeUseCase = container.redeemPrizeUseCase,
                 listMembersUseCase = container.listMembersUseCase,
+                uploadPrizeImageUseCase = container.uploadPrizeImageUseCase,
             )
         },
     )
@@ -108,8 +120,10 @@ fun PrizesScreen(container: AppContainer, isModerator: Boolean) {
         PrizeEditorDialog(
             initial = uiState.editingPrize,
             errorMessage = uiState.actionError,
+            uploading = uiState.uploadingImage,
             onDismiss = viewModel::dismissEditor,
             onSave = viewModel::savePrize,
+            onUploadImage = viewModel::uploadImage,
         )
     }
 
@@ -188,16 +202,34 @@ private fun PrizeCard(
 private fun PrizeEditorDialog(
     initial: Prize?,
     errorMessage: String?,
+    uploading: Boolean,
     onDismiss: () -> Unit,
     onSave: (name: String, description: String, pointsCost: Int, imageUrl: String?) -> Unit,
+    onUploadImage: (bytes: ByteArray, mimeType: String, onDone: (String?) -> Unit) -> Unit,
 ) {
     var name by remember { mutableStateOf(initial?.name.orEmpty()) }
     var description by remember { mutableStateOf(initial?.description.orEmpty()) }
     var pointsText by remember { mutableStateOf(initial?.pointsCost?.toString().orEmpty()) }
     var imageUrl by remember { mutableStateOf(initial?.imageUrl.orEmpty()) }
 
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val pickImageLauncher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        scope.launch {
+            val (bytes, mimeType) = withContext(Dispatchers.IO) {
+                val mime = context.contentResolver.getType(uri) ?: "image/jpeg"
+                val data = context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                data to mime
+            }
+            if (bytes != null) {
+                onUploadImage(bytes, mimeType) { uploadedUrl -> if (uploadedUrl != null) imageUrl = uploadedUrl }
+            }
+        }
+    }
+
     AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = { if (!uploading) onDismiss() },
         title = { Text(if (initial == null) "New prize" else "Edit prize") },
         text = {
             Column {
@@ -222,6 +254,27 @@ private fun PrizeEditorDialog(
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                 )
+                Row(
+                    modifier = Modifier.padding(top = 8.dp),
+                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                ) {
+                    OutlinedButton(
+                        enabled = !uploading,
+                        onClick = {
+                            pickImageLauncher.launch(
+                                androidx.activity.result.PickVisualMediaRequest(
+                                    ActivityResultContracts.PickVisualMedia.ImageOnly,
+                                ),
+                            )
+                        },
+                    ) {
+                        Icon(Icons.Default.Image, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Text(" Choose a photo", modifier = Modifier.padding(start = 4.dp))
+                    }
+                    if (uploading) {
+                        CircularProgressIndicator(modifier = Modifier.padding(start = 12.dp).size(20.dp))
+                    }
+                }
                 val previewUrl = normalizeImageUrl(imageUrl)
                 if (previewUrl != null) {
                     coil.compose.AsyncImage(
@@ -241,11 +294,11 @@ private fun PrizeEditorDialog(
         },
         confirmButton = {
             TextButton(
-                enabled = name.isNotBlank() && (pointsText.toIntOrNull() ?: 0) > 0,
+                enabled = !uploading && name.isNotBlank() && (pointsText.toIntOrNull() ?: 0) > 0,
                 onClick = { onSave(name, description, pointsText.toInt(), normalizeImageUrl(imageUrl)) },
             ) { Text("Save") }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+        dismissButton = { TextButton(enabled = !uploading, onClick = onDismiss) { Text("Cancel") } },
     )
 }
 

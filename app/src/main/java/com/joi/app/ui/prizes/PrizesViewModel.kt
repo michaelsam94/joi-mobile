@@ -12,6 +12,7 @@ import com.joi.domain.usecase.ListMembersUseCase
 import com.joi.domain.usecase.ListPrizesUseCase
 import com.joi.domain.usecase.RedeemPrizeUseCase
 import com.joi.domain.usecase.SavePrizeUseCase
+import com.joi.domain.usecase.UploadPrizeImageUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,6 +28,7 @@ data class PrizesUiState(
     val redeemingPrize: Prize? = null,
     val actionError: String? = null,
     val actionMessage: String? = null,
+    val uploadingImage: Boolean = false,
 )
 
 class PrizesViewModel(
@@ -36,6 +38,7 @@ class PrizesViewModel(
     private val deletePrizeUseCase: DeletePrizeUseCase,
     private val redeemPrizeUseCase: RedeemPrizeUseCase,
     private val listMembersUseCase: ListMembersUseCase,
+    private val uploadPrizeImageUseCase: UploadPrizeImageUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PrizesUiState())
@@ -89,6 +92,24 @@ class PrizesViewModel(
                     load()
                 }
                 is AppResult.Failure -> _uiState.value = _uiState.value.copy(actionError = result.error.message)
+            }
+        }
+    }
+
+    /** Uploads a picture picked from the gallery and hands the resulting hosted URL back via
+     * [onDone] (null on failure — [actionError] is set for the dialog to show). */
+    fun uploadImage(bytes: ByteArray, mimeType: String, onDone: (String?) -> Unit) {
+        _uiState.value = _uiState.value.copy(uploadingImage = true, actionError = null)
+        viewModelScope.launch {
+            when (val result = uploadPrizeImageUseCase(bytes, mimeType)) {
+                is AppResult.Success -> {
+                    _uiState.value = _uiState.value.copy(uploadingImage = false)
+                    onDone(result.data)
+                }
+                is AppResult.Failure -> {
+                    _uiState.value = _uiState.value.copy(uploadingImage = false, actionError = result.error.message)
+                    onDone(null)
+                }
             }
         }
     }

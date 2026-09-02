@@ -32,6 +32,21 @@ class DeletePrizeUseCase(private val prizeRepository: PrizeRepository) {
     suspend operator fun invoke(prizeId: String): AppResult<Unit> = prizeRepository.deletePrize(prizeId)
 }
 
+/** Uploads a picture picked from the gallery (as opposed to a URL the moderator already has to
+ * hand) and returns the URL to use as the prize's imageUrl. Mirrors the 5MB limit the backend
+ * enforces so a too-large picture fails fast with a clear message instead of a slow doomed upload. */
+class UploadPrizeImageUseCase(private val prizeRepository: PrizeRepository) {
+    suspend operator fun invoke(bytes: ByteArray, mimeType: String): AppResult<String> {
+        if (bytes.isEmpty()) {
+            return AppResult.Failure(AppError("VALIDATION_ERROR", "That image looks empty"))
+        }
+        if (bytes.size > 5 * 1024 * 1024) {
+            return AppResult.Failure(AppError("VALIDATION_ERROR", "Image must be 5MB or smaller"))
+        }
+        return prizeRepository.uploadImage(bytes, mimeType)
+    }
+}
+
 /** Spends a member's points on a prize; the backend re-validates the balance regardless, this is just fast UI feedback. */
 class RedeemPrizeUseCase(private val prizeRepository: PrizeRepository) {
     suspend operator fun invoke(prize: Prize, memberTotalPoints: Int, userId: String): AppResult<PrizeRedemption> {

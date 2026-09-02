@@ -1,6 +1,7 @@
 package com.joi.data.network
 
 import com.joi.data.network.dto.*
+import okhttp3.MultipartBody
 import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.*
@@ -61,4 +62,8 @@ interface JoiApiService {
 
     @POST("telegram/send-weekly-report")
     suspend fun sendWeeklyReport(): Response<WeeklyReportResponseDto>
+
+    @Multipart
+    @POST("uploads/image")
+    suspend fun uploadImage(@Part image: MultipartBody.Part): Response<UploadImageResponseDto>
 }

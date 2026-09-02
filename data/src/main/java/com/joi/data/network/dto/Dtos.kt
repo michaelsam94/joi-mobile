@@ -152,6 +152,9 @@ data class PrizeRedemptionDto(
 )
 
 @Serializable
+data class UploadImageResponseDto(val url: String)
+
+@Serializable
 data class WeeklyReportResponseDto(
     val meetingDate: String,
     val attendedCount: Int,
