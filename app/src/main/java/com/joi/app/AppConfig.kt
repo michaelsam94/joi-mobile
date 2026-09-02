@@ -13,4 +13,9 @@ object AppConfig {
 
     /** Verbose OkHttp request/response logging — leave off for anything you'd call a release build. */
     const val DEBUG_NETWORK_LOGGING: Boolean = true
+
+    /** The moderator "Export all data to Google Sheet" button on the Profile screen — hidden while
+     * the Google Cloud project's Sheets API access is still being sorted out on the backend. Flip
+     * back to true once POST /export/database works end-to-end. */
+    const val DATABASE_EXPORT_ENABLED: Boolean = false
 }

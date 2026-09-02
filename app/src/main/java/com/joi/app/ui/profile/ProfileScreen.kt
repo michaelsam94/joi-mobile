@@ -26,6 +26,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.joi.app.AppConfig
 import com.joi.app.di.AppContainer
 import com.joi.app.util.viewModelFactoryOf
 import com.joi.designsystem.components.ErrorState
@@ -111,7 +112,7 @@ fun ProfileScreen(container: AppContainer, isModerator: Boolean) {
                     }
                 }
 
-                if (isModerator) {
+                if (isModerator && AppConfig.DATABASE_EXPORT_ENABLED) {
                     item {
                         JoiPrimaryButton(
                             text = "Export all data to Google Sheet",
