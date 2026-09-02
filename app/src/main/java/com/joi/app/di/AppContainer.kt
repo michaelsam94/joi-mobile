@@ -9,6 +9,7 @@ import com.joi.data.network.JoiApiService
 import com.joi.data.network.NetworkModule
 import com.joi.data.repository.AttendanceRepositoryImpl
 import com.joi.data.repository.AuthRepositoryImpl
+import com.joi.data.repository.ExportRepositoryImpl
 import com.joi.data.repository.LeaderboardRepositoryImpl
 import com.joi.data.repository.PointsRepositoryImpl
 import com.joi.data.repository.PrizeRepositoryImpl
@@ -17,6 +18,7 @@ import com.joi.data.repository.UserRepositoryImpl
 import com.joi.data.session.DataStoreAuthSession
 import com.joi.domain.repository.AttendanceRepository
 import com.joi.domain.repository.AuthRepository
+import com.joi.domain.repository.ExportRepository
 import com.joi.domain.repository.LeaderboardRepository
 import com.joi.domain.repository.PointsRepository
 import com.joi.domain.repository.PrizeRepository
@@ -27,6 +29,7 @@ import com.joi.domain.usecase.AdjustPointsUseCase
 import com.joi.domain.usecase.ChangePasswordUseCase
 import com.joi.domain.usecase.CheckInUseCase
 import com.joi.domain.usecase.DeletePrizeUseCase
+import com.joi.domain.usecase.ExportDatabaseUseCase
 import com.joi.domain.usecase.GetAbsenteesUseCase
 import com.joi.domain.usecase.GetLeaderboardUseCase
 import com.joi.domain.usecase.GetRedeemedPrizeIdsUseCase
@@ -75,6 +78,7 @@ class AppContainer(context: Context) {
     private val leaderboardRepository: LeaderboardRepository = LeaderboardRepositoryImpl(api)
     private val prizeRepository: PrizeRepository = PrizeRepositoryImpl(api)
     private val telegramRepository: TelegramRepository = TelegramRepositoryImpl(api)
+    private val exportRepository: ExportRepository = ExportRepositoryImpl(api)
 
     // Auth
     val loginUseCase = LoginUseCase(authRepository, authSession)
@@ -107,4 +111,7 @@ class AppContainer(context: Context) {
     val redeemPrizeUseCase = RedeemPrizeUseCase(prizeRepository)
     val uploadPrizeImageUseCase = UploadPrizeImageUseCase(prizeRepository)
     val getRedeemedPrizeIdsUseCase = GetRedeemedPrizeIdsUseCase(prizeRepository)
+
+    // Admin
+    val exportDatabaseUseCase = ExportDatabaseUseCase(exportRepository)
 }

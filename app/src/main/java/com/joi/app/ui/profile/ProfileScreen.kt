@@ -10,22 +10,26 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.joi.app.di.AppContainer
 import com.joi.app.util.viewModelFactoryOf
 import com.joi.designsystem.components.ErrorState
+import com.joi.designsystem.components.JoiPrimaryButton
 import com.joi.designsystem.components.LevelBadge
 import com.joi.designsystem.components.LoadingState
 import com.joi.designsystem.components.PointsPill
@@ -35,7 +39,7 @@ import com.joi.domain.model.Level
 import com.joi.domain.model.PointType
 
 @Composable
-fun ProfileScreen(container: AppContainer) {
+fun ProfileScreen(container: AppContainer, isModerator: Boolean) {
     val viewModel: ProfileViewModel = viewModel(
         factory = viewModelFactoryOf {
             ProfileViewModel(
@@ -43,11 +47,13 @@ fun ProfileScreen(container: AppContainer) {
                 getMemberQrCodeUseCase = container.getMemberQrCodeUseCase,
                 getMemberPointsHistoryUseCase = container.getMemberPointsHistoryUseCase,
                 logoutUseCase = container.logoutUseCase,
+                exportDatabaseUseCase = container.exportDatabaseUseCase,
             )
         },
     )
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val user = uiState.user
+    val uriHandler = LocalUriHandler.current
 
     Scaffold(
         topBar = {
@@ -105,6 +111,17 @@ fun ProfileScreen(container: AppContainer) {
                     }
                 }
 
+                if (isModerator) {
+                    item {
+                        JoiPrimaryButton(
+                            text = "Export all data to Google Sheet",
+                            onClick = viewModel::exportDatabase,
+                            loading = uiState.exporting,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                }
+
                 item {
                     Text(
                         "History",
@@ -137,6 +154,30 @@ fun ProfileScreen(container: AppContainer) {
                 }
             }
         }
+    }
+
+    if (uiState.exportUrl != null) {
+        AlertDialog(
+            onDismissRequest = viewModel::dismissExportResult,
+            title = { Text("Export ready") },
+            text = { Text("Every table has been exported to a Google Sheet.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    uriHandler.openUri(uiState.exportUrl!!)
+                    viewModel.dismissExportResult()
+                }) { Text("Open") }
+            },
+            dismissButton = { TextButton(onClick = viewModel::dismissExportResult) { Text("Close") } },
+        )
+    }
+
+    if (uiState.exportError != null) {
+        AlertDialog(
+            onDismissRequest = viewModel::dismissExportResult,
+            title = { Text("Export failed") },
+            text = { Text(uiState.exportError!!) },
+            confirmButton = { TextButton(onClick = viewModel::dismissExportResult) { Text("OK") } },
+        )
     }
 }
 

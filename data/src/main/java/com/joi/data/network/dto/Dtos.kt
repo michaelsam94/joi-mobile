@@ -172,3 +172,6 @@ data class WeeklyReportResponseDto(
     val sentToChatIds: List<String>,
     val failedChatIds: List<String> = emptyList(),
 )
+
+@Serializable
+data class ExportUrlResponseDto(val url: String)

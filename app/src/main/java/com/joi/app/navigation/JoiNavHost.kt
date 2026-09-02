@@ -119,7 +119,7 @@ private fun MainScaffold(container: AppContainer, session: SessionState) {
                 PrizesScreen(container, isModerator = isModerator)
             }
             composable(Destinations.PROFILE) {
-                ProfileScreen(container)
+                ProfileScreen(container, isModerator = isModerator)
             }
 
             if (isModerator) {

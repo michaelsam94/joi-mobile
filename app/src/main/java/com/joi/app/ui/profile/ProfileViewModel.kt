@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.joi.domain.model.AppResult
 import com.joi.domain.model.PointTransaction
 import com.joi.domain.model.PublicUser
+import com.joi.domain.usecase.ExportDatabaseUseCase
 import com.joi.domain.usecase.GetMemberPointsHistoryUseCase
 import com.joi.domain.usecase.GetMemberQrCodeUseCase
 import com.joi.domain.usecase.GetMyProfileUseCase
@@ -20,6 +21,9 @@ data class ProfileUiState(
     val history: List<PointTransaction> = emptyList(),
     val loading: Boolean = true,
     val errorMessage: String? = null,
+    val exporting: Boolean = false,
+    val exportUrl: String? = null,
+    val exportError: String? = null,
 )
 
 class ProfileViewModel(
@@ -27,6 +31,7 @@ class ProfileViewModel(
     private val getMemberQrCodeUseCase: GetMemberQrCodeUseCase,
     private val getMemberPointsHistoryUseCase: GetMemberPointsHistoryUseCase,
     private val logoutUseCase: LogoutUseCase,
+    private val exportDatabaseUseCase: ExportDatabaseUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProfileUiState())
@@ -55,5 +60,24 @@ class ProfileViewModel(
 
     fun signOut() {
         viewModelScope.launch { logoutUseCase() }
+    }
+
+    /** Moderator-only: dumps every table into a Google Sheet on Drive and surfaces the link via
+     * [ProfileUiState.exportUrl] for the screen to show in a dialog. */
+    fun exportDatabase() {
+        if (_uiState.value.exporting) return
+        _uiState.value = _uiState.value.copy(exporting = true, exportError = null)
+        viewModelScope.launch {
+            when (val result = exportDatabaseUseCase()) {
+                is AppResult.Success ->
+                    _uiState.value = _uiState.value.copy(exporting = false, exportUrl = result.data)
+                is AppResult.Failure ->
+                    _uiState.value = _uiState.value.copy(exporting = false, exportError = result.error.message)
+            }
+        }
+    }
+
+    fun dismissExportResult() {
+        _uiState.value = _uiState.value.copy(exportUrl = null, exportError = null)
     }
 }

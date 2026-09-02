@@ -66,6 +66,9 @@ interface JoiApiService {
     @POST("telegram/send-weekly-report")
     suspend fun sendWeeklyReport(): Response<WeeklyReportResponseDto>
 
+    @POST("export/database")
+    suspend fun exportDatabase(): Response<ExportUrlResponseDto>
+
     @Multipart
     @POST("uploads/image")
     suspend fun uploadImage(@Part image: MultipartBody.Part): Response<UploadImageResponseDto>
