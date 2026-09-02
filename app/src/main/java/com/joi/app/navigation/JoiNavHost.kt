@@ -1,6 +1,8 @@
 package com.joi.app.navigation
 
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Group
@@ -77,6 +79,13 @@ private fun MainScaffold(container: AppContainer, session: SessionState) {
     }
 
     Scaffold(
+        // No top bar here — each screen owns its own JoiTopBar, which already handles the status
+        // bar inset itself. Leaving the default contentWindowInsets would make this outer Scaffold
+        // reserve that same top inset a second time, pushing every screen's app bar down by an
+        // extra status-bar-height gap. We still get the (correct, necessary) bottom padding for the
+        // NavigationBar below — that reservation comes from the bar's actual measured height, not
+        // from contentWindowInsets, so zeroing this out only removes the redundant top inset.
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
             val backStackEntry by navController.currentBackStackEntryAsState()
             val currentRoute = backStackEntry?.destination?.route
@@ -101,7 +110,7 @@ private fun MainScaffold(container: AppContainer, session: SessionState) {
         NavHost(
             navController = navController,
             startDestination = Destinations.LEADERBOARD,
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().padding(padding),
         ) {
             composable(Destinations.LEADERBOARD) {
                 LeaderboardScreen(container, currentUserId = session.userId)
