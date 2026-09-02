@@ -23,6 +23,7 @@ data class PrizesUiState(
     val prizes: List<Prize> = emptyList(),
     val members: List<PublicUser> = emptyList(),
     val loading: Boolean = true,
+    val refreshing: Boolean = false,
     val errorMessage: String? = null,
     val editingPrize: Prize? = null,
     val showEditor: Boolean = false,
@@ -53,13 +54,28 @@ class PrizesViewModel(
         load()
     }
 
-    fun load() {
-        _uiState.value = _uiState.value.copy(loading = true, errorMessage = null)
+    /** Pull-to-refresh: reloads without showing the full-screen loading state, using
+     * [PrizesUiState.refreshing] instead — same pattern as LeaderboardViewModel.refresh(). */
+    fun refresh() {
+        load(isRefresh = true)
+    }
+
+    fun load(isRefresh: Boolean = false) {
+        _uiState.value = _uiState.value.copy(
+            loading = !isRefresh && _uiState.value.prizes.isEmpty(),
+            refreshing = isRefresh,
+            errorMessage = null,
+        )
         viewModelScope.launch {
             when (val result = listPrizesUseCase(activeOnly = !isModerator)) {
-                is AppResult.Success -> _uiState.value = _uiState.value.copy(prizes = result.data, loading = false)
+                is AppResult.Success ->
+                    _uiState.value = _uiState.value.copy(prizes = result.data, loading = false, refreshing = false)
                 is AppResult.Failure ->
-                    _uiState.value = _uiState.value.copy(loading = false, errorMessage = result.error.message)
+                    _uiState.value = _uiState.value.copy(
+                        loading = false,
+                        refreshing = false,
+                        errorMessage = result.error.message,
+                    )
             }
             if (isModerator) {
                 val members = listMembersUseCase(activeOnly = true)

@@ -23,6 +23,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -30,6 +31,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -66,6 +68,7 @@ private fun normalizeImageUrl(raw: String): String? {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PrizesScreen(container: AppContainer, isModerator: Boolean) {
     val viewModel: PrizesViewModel = viewModel(
@@ -96,23 +99,32 @@ fun PrizesScreen(container: AppContainer, isModerator: Boolean) {
     ) { padding ->
         when {
             uiState.loading -> LoadingState(modifier = Modifier.padding(padding))
-            uiState.errorMessage != null ->
-                ErrorState(uiState.errorMessage!!, modifier = Modifier.padding(padding), onRetry = viewModel::load)
-            uiState.prizes.isEmpty() -> EmptyState("No prizes yet — check back soon!", modifier = Modifier.padding(padding))
-            else -> LazyColumn(
+            uiState.errorMessage != null && uiState.prizes.isEmpty() ->
+                ErrorState(uiState.errorMessage!!, modifier = Modifier.padding(padding), onRetry = { viewModel.load() })
+            else -> PullToRefreshBox(
+                isRefreshing = uiState.refreshing,
+                onRefresh = viewModel::refresh,
                 modifier = Modifier.padding(padding).fillMaxSize(),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                items(uiState.prizes, key = { it.id }) { prize ->
-                    PrizeCard(
-                        prize = prize,
-                        isModerator = isModerator,
-                        isRedeemedByMe = prize.id in uiState.redeemedPrizeIds,
-                        onEdit = { viewModel.openEdit(prize) },
-                        onDelete = { viewModel.deletePrize(prize) },
-                        onRedeem = { viewModel.openRedeem(prize) },
-                    )
+                if (uiState.prizes.isEmpty()) {
+                    EmptyState("No prizes yet — check back soon!")
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        items(uiState.prizes, key = { it.id }) { prize ->
+                            PrizeCard(
+                                prize = prize,
+                                isModerator = isModerator,
+                                isRedeemedByMe = prize.id in uiState.redeemedPrizeIds,
+                                onEdit = { viewModel.openEdit(prize) },
+                                onDelete = { viewModel.deletePrize(prize) },
+                                onRedeem = { viewModel.openRedeem(prize) },
+                            )
+                        }
+                    }
                 }
             }
         }

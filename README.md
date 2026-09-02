@@ -15,10 +15,11 @@ first `./gradlew build` as the real first compile pass this code has ever had.
 
 A handful of spots used APIs I'm confident about the *shape* of but couldn't verify against the
 exact pinned library versions — if Gradle sync complains, look here first:
-- `PullToRefreshBox` in `LeaderboardScreen.kt` (`androidx.compose.material3.pulltorefresh`) — the
-  Material3 pull-to-refresh API went through a couple of shapes; if it doesn't resolve, the
+- `PullToRefreshBox` in `LeaderboardScreen.kt` and `PrizesScreen.kt` (`androidx.compose.material3.pulltorefresh`)
+  — the Material3 pull-to-refresh API went through a couple of shapes; if it doesn't resolve, the
   Compose BOM version in `gradle/libs.versions.toml` likely needs bumping (Android Studio's
-  upgrade suggestion is fine to accept).
+  upgrade suggestion is fine to accept). Confirmed building in `LeaderboardScreen.kt` already, so
+  `PrizesScreen.kt`'s identical usage should be safe too.
 - `GmsBarcodeScanning.getClient(context)` in `CheckInScreen.kt` — Google's Code Scanner API
   (`com.google.mlkit.vision.codescanner`), deliberately used with default options (scans all
   barcode formats) to avoid an extra dependency for QR-only filtering.
