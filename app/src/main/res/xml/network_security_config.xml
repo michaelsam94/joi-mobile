@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Moderators can paste any image URL into the prize editor — including plain http:// links, which
+  Android blocks by default on API 28+ (targetSdk 35 here) unless cleartext is explicitly allowed.
+  Without this, an http:// image URL fails to load with no visible error: Coil just never shows
+  anything. The app's own API traffic is unaffected — it's always https:// (see AppConfig) — this
+  config only widens what image URLs a moderator is allowed to paste in.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

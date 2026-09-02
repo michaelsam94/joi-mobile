@@ -42,6 +42,19 @@ import com.joi.designsystem.components.JoiTopBar
 import com.joi.designsystem.components.LoadingState
 import com.joi.domain.model.Prize
 
+/** The backend requires a full URL (`https://...`) for a prize's image, and a bare `example.com/x.jpg`
+ * typed without a scheme isn't something Coil can load either — this fills in `https://` for
+ * anything that doesn't already start with http(s):// so pasting just a domain still works. */
+private fun normalizeImageUrl(raw: String): String? {
+    val trimmed = raw.trim()
+    if (trimmed.isBlank()) return null
+    return if (trimmed.startsWith("http://", ignoreCase = true) || trimmed.startsWith("https://", ignoreCase = true)) {
+        trimmed
+    } else {
+        "https://$trimmed"
+    }
+}
+
 @Composable
 fun PrizesScreen(container: AppContainer, isModerator: Boolean) {
     val viewModel: PrizesViewModel = viewModel(
@@ -131,9 +144,10 @@ private fun PrizeCard(
 ) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
-            if (!prize.imageUrl.isNullOrBlank()) {
+            val cardImageUrl = prize.imageUrl?.let(::normalizeImageUrl)
+            if (cardImageUrl != null) {
                 coil.compose.AsyncImage(
-                    model = prize.imageUrl,
+                    model = cardImageUrl,
                     contentDescription = prize.name,
                     contentScale = androidx.compose.ui.layout.ContentScale.Crop,
                     modifier = Modifier
@@ -208,9 +222,10 @@ private fun PrizeEditorDialog(
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                 )
-                if (imageUrl.isNotBlank()) {
+                val previewUrl = normalizeImageUrl(imageUrl)
+                if (previewUrl != null) {
                     coil.compose.AsyncImage(
-                        model = imageUrl,
+                        model = previewUrl,
                         contentDescription = "Preview",
                         contentScale = androidx.compose.ui.layout.ContentScale.Crop,
                         modifier = Modifier
@@ -227,7 +242,7 @@ private fun PrizeEditorDialog(
         confirmButton = {
             TextButton(
                 enabled = name.isNotBlank() && (pointsText.toIntOrNull() ?: 0) > 0,
-                onClick = { onSave(name, description, pointsText.toInt(), imageUrl.trim().ifBlank { null }) },
+                onClick = { onSave(name, description, pointsText.toInt(), normalizeImageUrl(imageUrl)) },
             ) { Text("Save") }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
