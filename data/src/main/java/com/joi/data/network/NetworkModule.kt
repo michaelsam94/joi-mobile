@@ -5,8 +5,8 @@ import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.KotlinSerializationConverterFactory
 import retrofit2.Retrofit
-import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import java.util.concurrent.TimeUnit
 
 /** Builds the Retrofit client used by every repository in `data`. One instance, shared. */
@@ -33,7 +33,7 @@ object NetworkModule {
         val retrofit = Retrofit.Builder()
             .baseUrl(baseUrl)
             .client(client)
-            .addConverterFactory(json.asConverterFactory(contentType))
+            .addConverterFactory(KotlinSerializationConverterFactory.create(json, contentType))
             .build()
 
         return retrofit.create(JoiApiService::class.java)
