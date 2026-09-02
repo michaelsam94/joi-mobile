@@ -16,13 +16,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.joi.app.di.AppContainer
 import com.joi.app.util.viewModelFactoryOf
+import com.joi.designsystem.components.JoiPasswordField
 import com.joi.designsystem.components.JoiPrimaryButton
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,13 +64,10 @@ fun LoginScreen(container: AppContainer) {
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                 modifier = Modifier.fillMaxWidth(),
             )
-            OutlinedTextField(
+            JoiPasswordField(
                 value = uiState.password,
                 onValueChange = viewModel::onPasswordChange,
-                label = { Text("Password") },
-                singleLine = true,
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                label = "Password",
                 modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
             )
 

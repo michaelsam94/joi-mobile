@@ -42,6 +42,7 @@ import com.joi.domain.usecase.RegisterMemberUseCase
 import com.joi.domain.usecase.SavePrizeUseCase
 import com.joi.domain.usecase.SendWeeklyReportNowUseCase
 import com.joi.domain.usecase.SetMemberActiveUseCase
+import com.joi.domain.usecase.UpdateMemberUseCase
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "joi_session")
 
@@ -85,6 +86,7 @@ class AppContainer(context: Context) {
     val getMemberUseCase = GetMemberUseCase(userRepository)
     val getMemberPointsHistoryUseCase = GetMemberPointsHistoryUseCase(userRepository)
     val setMemberActiveUseCase = SetMemberActiveUseCase(userRepository)
+    val updateMemberUseCase = UpdateMemberUseCase(userRepository)
     val getMyProfileUseCase = GetMyProfileUseCase(userRepository)
 
     // Attendance

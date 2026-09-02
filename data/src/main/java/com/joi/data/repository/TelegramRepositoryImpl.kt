@@ -3,6 +3,7 @@ package com.joi.data.repository
 import com.joi.data.network.JoiApiService
 import com.joi.data.network.apiCall
 import com.joi.domain.model.AppResult
+import com.joi.domain.model.map
 import com.joi.domain.model.WeeklyReportResult
 import com.joi.domain.repository.TelegramRepository
 

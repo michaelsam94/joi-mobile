@@ -16,6 +16,10 @@ data class RegisterMemberUiState(
     val username: String = "",
     val temporaryPassword: String = "",
     val asModerator: Boolean = false,
+    val dateOfBirth: String = "",
+    val phoneNumber: String = "",
+    val address: String = "",
+    val className: String = "",
     val loading: Boolean = false,
     val errorMessage: String? = null,
     val done: Boolean = false,
@@ -38,6 +42,18 @@ class RegisterMemberViewModel(private val registerMemberUseCase: RegisterMemberU
     fun onAsModeratorChange(value: Boolean) {
         _uiState.value = _uiState.value.copy(asModerator = value)
     }
+    fun onDateOfBirthChange(value: String) {
+        _uiState.value = _uiState.value.copy(dateOfBirth = value)
+    }
+    fun onPhoneNumberChange(value: String) {
+        _uiState.value = _uiState.value.copy(phoneNumber = value)
+    }
+    fun onAddressChange(value: String) {
+        _uiState.value = _uiState.value.copy(address = value)
+    }
+    fun onClassNameChange(value: String) {
+        _uiState.value = _uiState.value.copy(className = value)
+    }
 
     fun register() {
         val state = _uiState.value
@@ -49,6 +65,10 @@ class RegisterMemberViewModel(private val registerMemberUseCase: RegisterMemberU
                 username = state.username,
                 temporaryPassword = state.temporaryPassword,
                 role = if (state.asModerator) Role.MODERATOR else Role.MEMBER,
+                dateOfBirth = state.dateOfBirth.trim().ifBlank { null },
+                phoneNumber = state.phoneNumber.trim().ifBlank { null },
+                address = state.address.trim().ifBlank { null },
+                className = state.className.trim().ifBlank { null },
             )
             when (val result = registerMemberUseCase(input)) {
                 is AppResult.Success -> _uiState.value = _uiState.value.copy(loading = false, done = true)

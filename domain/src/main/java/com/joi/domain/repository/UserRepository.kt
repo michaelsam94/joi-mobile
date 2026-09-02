@@ -10,12 +10,20 @@ data class RegisterUserInput(
     val username: String,
     val temporaryPassword: String,
     val role: Role = Role.MEMBER,
+    val dateOfBirth: String? = null,
+    val phoneNumber: String? = null,
+    val address: String? = null,
+    val className: String? = null,
 )
 
 data class UpdateUserInput(
     val fullName: String? = null,
     val role: Role? = null,
     val active: Boolean? = null,
+    val dateOfBirth: String? = null,
+    val phoneNumber: String? = null,
+    val address: String? = null,
+    val className: String? = null,
 )
 
 interface UserRepository {

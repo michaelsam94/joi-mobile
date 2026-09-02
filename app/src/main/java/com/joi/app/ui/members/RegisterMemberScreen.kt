@@ -23,6 +23,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.joi.app.di.AppContainer
 import com.joi.app.util.viewModelFactoryOf
+import com.joi.designsystem.components.JoiPasswordField
 import com.joi.designsystem.components.JoiPrimaryButton
 import com.joi.designsystem.components.JoiTopBar
 
@@ -67,10 +68,37 @@ fun RegisterMemberScreen(container: AppContainer, onBack: () -> Unit, onRegister
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
             )
-            OutlinedTextField(
+            JoiPasswordField(
                 value = uiState.temporaryPassword,
                 onValueChange = viewModel::onTemporaryPasswordChange,
-                label = { Text("Temporary password") },
+                label = "Temporary password",
+                modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+            )
+
+            OutlinedTextField(
+                value = uiState.dateOfBirth,
+                onValueChange = viewModel::onDateOfBirthChange,
+                label = { Text("Date of birth (YYYY-MM-DD)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+            )
+            OutlinedTextField(
+                value = uiState.phoneNumber,
+                onValueChange = viewModel::onPhoneNumberChange,
+                label = { Text("Phone number") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+            )
+            OutlinedTextField(
+                value = uiState.address,
+                onValueChange = viewModel::onAddressChange,
+                label = { Text("Address") },
+                modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+            )
+            OutlinedTextField(
+                value = uiState.className,
+                onValueChange = viewModel::onClassNameChange,
+                label = { Text("Class") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
             )

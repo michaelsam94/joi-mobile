@@ -5,11 +5,13 @@ import androidx.lifecycle.viewModelScope
 import com.joi.domain.model.AppResult
 import com.joi.domain.model.PointTransaction
 import com.joi.domain.model.PublicUser
+import com.joi.domain.model.Role
 import com.joi.domain.usecase.AdjustPointsUseCase
 import com.joi.domain.usecase.GetMemberPointsHistoryUseCase
 import com.joi.domain.usecase.GetMemberQrCodeUseCase
 import com.joi.domain.usecase.GetMemberUseCase
 import com.joi.domain.usecase.SetMemberActiveUseCase
+import com.joi.domain.usecase.UpdateMemberUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,6 +26,9 @@ data class MemberDetailUiState(
     val showAdjustDialog: Boolean = false,
     val adjustLoading: Boolean = false,
     val adjustError: String? = null,
+    val showEditDialog: Boolean = false,
+    val editLoading: Boolean = false,
+    val editError: String? = null,
 )
 
 class MemberDetailViewModel(
@@ -33,6 +38,7 @@ class MemberDetailViewModel(
     private val getMemberPointsHistoryUseCase: GetMemberPointsHistoryUseCase,
     private val setMemberActiveUseCase: SetMemberActiveUseCase,
     private val adjustPointsUseCase: AdjustPointsUseCase,
+    private val updateMemberUseCase: UpdateMemberUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MemberDetailUiState())
@@ -108,6 +114,49 @@ class MemberDetailViewModel(
                 }
                 is AppResult.Failure ->
                     _uiState.value = _uiState.value.copy(adjustLoading = false, adjustError = result.error.message)
+            }
+        }
+    }
+
+    fun openEditDialog() {
+        _uiState.value = _uiState.value.copy(showEditDialog = true, editError = null)
+    }
+
+    fun dismissEditDialog() {
+        _uiState.value = _uiState.value.copy(showEditDialog = false)
+    }
+
+    fun updateMember(
+        fullName: String,
+        role: Role,
+        dateOfBirth: String?,
+        phoneNumber: String?,
+        address: String?,
+        className: String?,
+    ) {
+        if (_uiState.value.editLoading) return
+        _uiState.value = _uiState.value.copy(editLoading = true, editError = null)
+        viewModelScope.launch {
+            when (
+                val result = updateMemberUseCase(
+                    userId = userId,
+                    fullName = fullName,
+                    role = role,
+                    dateOfBirth = dateOfBirth,
+                    phoneNumber = phoneNumber,
+                    address = address,
+                    className = className,
+                )
+            ) {
+                is AppResult.Success -> {
+                    _uiState.value = _uiState.value.copy(
+                        user = result.data,
+                        editLoading = false,
+                        showEditDialog = false,
+                    )
+                }
+                is AppResult.Failure ->
+                    _uiState.value = _uiState.value.copy(editLoading = false, editError = result.error.message)
             }
         }
     }

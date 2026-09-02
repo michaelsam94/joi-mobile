@@ -10,9 +10,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -39,6 +44,7 @@ import com.joi.designsystem.components.LoadingState
 import com.joi.designsystem.components.PointsPill
 import com.joi.designsystem.components.QrCodeImage
 import com.joi.domain.model.PointType
+import com.joi.domain.model.Role
 
 @Composable
 fun MemberDetailScreen(container: AppContainer, userId: String, onBack: () -> Unit) {
@@ -51,13 +57,28 @@ fun MemberDetailScreen(container: AppContainer, userId: String, onBack: () -> Un
                 getMemberPointsHistoryUseCase = container.getMemberPointsHistoryUseCase,
                 setMemberActiveUseCase = container.setMemberActiveUseCase,
                 adjustPointsUseCase = container.adjustPointsUseCase,
+                updateMemberUseCase = container.updateMemberUseCase,
             )
         },
     )
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val user = uiState.user
 
-    Scaffold(topBar = { JoiTopBar(title = user?.fullName ?: "Member", onBack = onBack) }) { padding ->
+    Scaffold(
+        topBar = {
+            JoiTopBar(
+                title = user?.fullName ?: "Member",
+                onBack = onBack,
+                actions = {
+                    if (user != null) {
+                        IconButton(onClick = viewModel::openEditDialog) {
+                            Icon(Icons.Default.Edit, contentDescription = "Edit member")
+                        }
+                    }
+                },
+            )
+        },
+    ) { padding ->
         when {
             uiState.loading -> LoadingState(modifier = Modifier.padding(padding))
             uiState.errorMessage != null || user == null ->
@@ -76,6 +97,19 @@ fun MemberDetailScreen(container: AppContainer, userId: String, onBack: () -> Un
                         ) {
                             LevelBadge(level = user.level)
                             PointsPill(points = user.totalPoints)
+                        }
+                    }
+                }
+
+                item {
+                    Card(modifier = Modifier.fillMaxWidth()) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text("Profile", style = MaterialTheme.typography.titleMedium)
+                            ProfileField("Username", user.username)
+                            ProfileField("Date of birth", user.dateOfBirth)
+                            ProfileField("Phone number", user.phoneNumber)
+                            ProfileField("Address", user.address)
+                            ProfileField("Class", user.className)
                         }
                     }
                 }
@@ -103,8 +137,9 @@ fun MemberDetailScreen(container: AppContainer, userId: String, onBack: () -> Un
                                     "${if (tx.points >= 0) "+" else ""}${tx.points} pts — ${tx.type.label()}",
                                     style = MaterialTheme.typography.titleMedium,
                                 )
-                                if (!tx.reason.isNullOrBlank()) {
-                                    Text(tx.reason, style = MaterialTheme.typography.bodyMedium)
+                                val reason = tx.reason
+                                if (!reason.isNullOrBlank()) {
+                                    Text(reason, style = MaterialTheme.typography.bodyMedium)
                                 }
                                 Text(
                                     tx.createdAt,
@@ -126,6 +161,25 @@ fun MemberDetailScreen(container: AppContainer, userId: String, onBack: () -> Un
             onDismiss = viewModel::dismissAdjustDialog,
             onConfirm = viewModel::adjustPoints,
         )
+    }
+
+    if (uiState.showEditDialog && user != null) {
+        EditMemberDialog(
+            user = user,
+            loading = uiState.editLoading,
+            errorMessage = uiState.editError,
+            onDismiss = viewModel::dismissEditDialog,
+            onConfirm = viewModel::updateMember,
+        )
+    }
+}
+
+@Composable
+private fun ProfileField(label: String, value: String?) {
+    if (value.isNullOrBlank()) return
+    Column(modifier = Modifier.padding(top = 8.dp)) {
+        Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(value, style = MaterialTheme.typography.bodyMedium)
     }
 }
 
@@ -180,6 +234,98 @@ private fun AdjustPointsDialog(
                 onClick = {
                     val magnitude = pointsText.toIntOrNull() ?: return@TextButton
                     onConfirm(if (isAdd) magnitude else -magnitude, reason)
+                },
+            ) { Text("Save") }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+    )
+}
+
+@Composable
+private fun EditMemberDialog(
+    user: com.joi.domain.model.PublicUser,
+    loading: Boolean,
+    errorMessage: String?,
+    onDismiss: () -> Unit,
+    onConfirm: (
+        fullName: String,
+        role: Role,
+        dateOfBirth: String?,
+        phoneNumber: String?,
+        address: String?,
+        className: String?,
+    ) -> Unit,
+) {
+    var fullName by remember { mutableStateOf(user.fullName) }
+    var isModerator by remember { mutableStateOf(user.role == Role.MODERATOR) }
+    var dateOfBirth by remember { mutableStateOf(user.dateOfBirth.orEmpty()) }
+    var phoneNumber by remember { mutableStateOf(user.phoneNumber.orEmpty()) }
+    var address by remember { mutableStateOf(user.address.orEmpty()) }
+    var className by remember { mutableStateOf(user.className.orEmpty()) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Edit member") },
+        text = {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                OutlinedTextField(
+                    value = fullName,
+                    onValueChange = { fullName = it },
+                    label = { Text("Full name") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                OutlinedTextField(
+                    value = dateOfBirth,
+                    onValueChange = { dateOfBirth = it },
+                    label = { Text("Date of birth (YYYY-MM-DD)") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                )
+                OutlinedTextField(
+                    value = phoneNumber,
+                    onValueChange = { phoneNumber = it },
+                    label = { Text("Phone number") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                )
+                OutlinedTextField(
+                    value = address,
+                    onValueChange = { address = it },
+                    label = { Text("Address") },
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                )
+                OutlinedTextField(
+                    value = className,
+                    onValueChange = { className = it },
+                    label = { Text("Class") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                )
+                Row(
+                    modifier = Modifier.padding(top = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Checkbox(checked = isModerator, onCheckedChange = { isModerator = it })
+                    Text("Moderator")
+                }
+                if (errorMessage != null) {
+                    Text(errorMessage, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(top = 8.dp))
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                enabled = !loading && fullName.isNotBlank(),
+                onClick = {
+                    onConfirm(
+                        fullName,
+                        if (isModerator) Role.MODERATOR else Role.MEMBER,
+                        dateOfBirth.trim().ifBlank { null },
+                        phoneNumber.trim().ifBlank { null },
+                        address.trim().ifBlank { null },
+                        className.trim().ifBlank { null },
+                    )
                 },
             ) { Text("Save") }
         },

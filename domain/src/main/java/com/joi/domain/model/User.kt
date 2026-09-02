@@ -17,6 +17,12 @@ data class PublicUser(
     val active: Boolean,
     /** Only present for the signed-in user's own profile and, for moderators, everyone's. */
     val username: String? = null,
+    /** YYYY-MM-DD. Only present in the same cases as [username]. */
+    val dateOfBirth: String? = null,
+    val phoneNumber: String? = null,
+    val address: String? = null,
+    /** Sunday-school / age-group class. Only present in the same cases as [username]. */
+    val className: String? = null,
 )
 
 /** The signed-in person's own session identity — a thin slice kept for quick UI access. */

@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -14,13 +13,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.joi.app.di.AppContainer
 import com.joi.app.util.viewModelFactoryOf
+import com.joi.designsystem.components.JoiPasswordField
 import com.joi.designsystem.components.JoiPrimaryButton
 
 /**
@@ -55,20 +54,16 @@ fun ChangePasswordScreen(container: AppContainer) {
                 modifier = Modifier.padding(top = 4.dp, bottom = 24.dp),
             )
 
-            OutlinedTextField(
+            JoiPasswordField(
                 value = uiState.newPassword,
                 onValueChange = viewModel::onNewPasswordChange,
-                label = { Text("New password") },
-                singleLine = true,
-                visualTransformation = PasswordVisualTransformation(),
+                label = "New password",
                 modifier = Modifier.fillMaxWidth(),
             )
-            OutlinedTextField(
+            JoiPasswordField(
                 value = uiState.confirmPassword,
                 onValueChange = viewModel::onConfirmPasswordChange,
-                label = { Text("Confirm password") },
-                singleLine = true,
-                visualTransformation = PasswordVisualTransformation(),
+                label = "Confirm password",
                 modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
             )
 
@@ -93,7 +88,4 @@ fun ChangePasswordScreen(container: AppContainer) {
             }
         }
     }
-    // `uiState.done` doesn't need to navigate anywhere itself — the use-case already cleared
-    // mustChangePassword in the session, so JoiNavHost's top-level `when` reacts to that and
-    // swaps this screen out on its own, same as login -> change-password does.
 }

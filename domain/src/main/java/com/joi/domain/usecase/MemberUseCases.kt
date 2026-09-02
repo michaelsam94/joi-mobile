@@ -4,6 +4,7 @@ import com.joi.domain.model.AppError
 import com.joi.domain.model.AppResult
 import com.joi.domain.model.PointTransaction
 import com.joi.domain.model.PublicUser
+import com.joi.domain.model.Role
 import com.joi.domain.repository.RegisterUserInput
 import com.joi.domain.repository.UpdateUserInput
 import com.joi.domain.repository.UserRepository
@@ -57,6 +58,34 @@ class GetMemberUseCase(private val userRepository: UserRepository) {
 class SetMemberActiveUseCase(private val userRepository: UserRepository) {
     suspend operator fun invoke(userId: String, active: Boolean): AppResult<PublicUser> =
         userRepository.updateUser(userId, UpdateUserInput(active = active))
+}
+
+/** Edits a member's profile: name, role, and the contact/personal fields moderators keep on file. */
+class UpdateMemberUseCase(private val userRepository: UserRepository) {
+    suspend operator fun invoke(
+        userId: String,
+        fullName: String,
+        role: Role,
+        dateOfBirth: String?,
+        phoneNumber: String?,
+        address: String?,
+        className: String?,
+    ): AppResult<PublicUser> {
+        if (fullName.isBlank()) {
+            return AppResult.Failure(AppError("VALIDATION_ERROR", "Full name is required"))
+        }
+        return userRepository.updateUser(
+            userId,
+            UpdateUserInput(
+                fullName = fullName.trim(),
+                role = role,
+                dateOfBirth = dateOfBirth?.trim()?.ifBlank { null },
+                phoneNumber = phoneNumber?.trim()?.ifBlank { null },
+                address = address?.trim()?.ifBlank { null },
+                className = className?.trim()?.ifBlank { null },
+            ),
+        )
+    }
 }
 
 class GetMyProfileUseCase(private val userRepository: UserRepository) {

@@ -5,6 +5,7 @@ import com.joi.data.network.apiCall
 import com.joi.data.network.dto.CheckInRequestDto
 import com.joi.domain.model.Absentee
 import com.joi.domain.model.AppResult
+import com.joi.domain.model.map
 import com.joi.domain.model.CheckInResult
 import com.joi.domain.repository.AttendanceRepository
 

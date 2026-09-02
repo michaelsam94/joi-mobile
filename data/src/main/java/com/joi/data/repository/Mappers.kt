@@ -28,6 +28,10 @@ internal fun PublicUserDto.toDomain() = PublicUser(
     level = level.toLevel(),
     active = active,
     username = username,
+    dateOfBirth = dateOfBirth,
+    phoneNumber = phoneNumber,
+    address = address,
+    className = className,
 )
 
 internal fun CurrentUserDto.toDomain() = CurrentUser(id = id, fullName = fullName, role = role.toRole())

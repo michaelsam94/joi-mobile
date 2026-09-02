@@ -4,6 +4,7 @@ import com.joi.data.network.JoiApiService
 import com.joi.data.network.apiCall
 import com.joi.data.network.dto.AdjustPointsRequestDto
 import com.joi.domain.model.AppResult
+import com.joi.domain.model.map
 import com.joi.domain.model.LeaderboardEntry
 import com.joi.domain.model.PublicUser
 import com.joi.domain.repository.LeaderboardRepository

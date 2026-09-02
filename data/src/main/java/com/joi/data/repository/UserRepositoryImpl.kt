@@ -5,6 +5,7 @@ import com.joi.data.network.apiCall
 import com.joi.data.network.dto.RegisterUserRequestDto
 import com.joi.data.network.dto.UpdateUserRequestDto
 import com.joi.domain.model.AppResult
+import com.joi.domain.model.map
 import com.joi.domain.model.PointTransaction
 import com.joi.domain.model.PublicUser
 import com.joi.domain.repository.RegisterUserInput
@@ -27,6 +28,10 @@ class UserRepositoryImpl(private val api: JoiApiService) : UserRepository {
                     username = input.username,
                     temporaryPassword = input.temporaryPassword,
                     role = input.role.name,
+                    dateOfBirth = input.dateOfBirth,
+                    phoneNumber = input.phoneNumber,
+                    address = input.address,
+                    className = input.className,
                 ),
             )
         }.map { it.toDomain() }
@@ -35,7 +40,15 @@ class UserRepositoryImpl(private val api: JoiApiService) : UserRepository {
         apiCall {
             api.updateUser(
                 userId,
-                UpdateUserRequestDto(fullName = input.fullName, role = input.role?.name, active = input.active),
+                UpdateUserRequestDto(
+                    fullName = input.fullName,
+                    role = input.role?.name,
+                    active = input.active,
+                    dateOfBirth = input.dateOfBirth,
+                    phoneNumber = input.phoneNumber,
+                    address = input.address,
+                    className = input.className,
+                ),
             )
         }.map { it.toDomain() }
 

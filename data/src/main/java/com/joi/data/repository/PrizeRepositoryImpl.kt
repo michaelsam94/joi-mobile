@@ -6,6 +6,7 @@ import com.joi.data.network.dto.CreatePrizeRequestDto
 import com.joi.data.network.dto.RedeemPrizeRequestDto
 import com.joi.data.network.dto.UpdatePrizeRequestDto
 import com.joi.domain.model.AppResult
+import com.joi.domain.model.map
 import com.joi.domain.model.Prize
 import com.joi.domain.model.PrizeRedemption
 import com.joi.domain.repository.PrizeInput

@@ -122,8 +122,9 @@ fun ProfileScreen(container: AppContainer) {
                                     "${if (tx.points >= 0) "+" else ""}${tx.points} pts — ${tx.type.label()}",
                                     style = MaterialTheme.typography.titleMedium,
                                 )
-                                if (!tx.reason.isNullOrBlank()) {
-                                    Text(tx.reason, style = MaterialTheme.typography.bodyMedium)
+                                val reason = tx.reason
+                                if (!reason.isNullOrBlank()) {
+                                    Text(reason, style = MaterialTheme.typography.bodyMedium)
                                 }
                                 Text(
                                     tx.createdAt,

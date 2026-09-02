@@ -146,9 +146,10 @@ private fun PrizeCard(
                 Text(prize.name, style = MaterialTheme.typography.titleMedium)
                 Text("⭐ ${prize.pointsCost} pts", style = MaterialTheme.typography.titleMedium)
             }
-            if (!prize.description.isNullOrBlank()) {
+            val description = prize.description
+            if (!description.isNullOrBlank()) {
                 Text(
-                    prize.description,
+                    description,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 4.dp),

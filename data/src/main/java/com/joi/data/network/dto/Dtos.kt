@@ -40,6 +40,10 @@ data class PublicUserDto(
     val active: Boolean,
     val username: String? = null,
     val telegramChatId: String? = null,
+    val dateOfBirth: String? = null,
+    val phoneNumber: String? = null,
+    val address: String? = null,
+    val className: String? = null,
 )
 
 @Serializable
@@ -48,6 +52,10 @@ data class RegisterUserRequestDto(
     val username: String,
     val temporaryPassword: String,
     val role: String? = null,
+    val dateOfBirth: String? = null,
+    val phoneNumber: String? = null,
+    val address: String? = null,
+    val className: String? = null,
 )
 
 @Serializable
@@ -55,6 +63,10 @@ data class UpdateUserRequestDto(
     val fullName: String? = null,
     val role: String? = null,
     val active: Boolean? = null,
+    val dateOfBirth: String? = null,
+    val phoneNumber: String? = null,
+    val address: String? = null,
+    val className: String? = null,
 )
 
 @Serializable
