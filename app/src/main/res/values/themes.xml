@@ -1,0 +1,5 @@
+<resources>
+    <!-- Compose draws the entire UI, so this only needs to exist to give the Activity/launcher a
+         non-null theme; JoiTheme() in Kotlin is what actually controls colors/typography/shapes. -->
+    <style name="Theme.Joi" parent="android:Theme.Material.Light.NoActionBar" />
+</resources>

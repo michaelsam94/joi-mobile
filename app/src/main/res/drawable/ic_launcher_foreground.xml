@@ -1,0 +1,31 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Placeholder mark: a simple sail + hull, standing in for the real Joi logo shown in
+         chat. Regenerate this properly via Android Studio's Image Asset tool from that image —
+         see joi-android/README.md's "App icon / logo" section for why it isn't wired in already. -->
+
+    <!-- sail -->
+    <path
+        android:fillColor="#FFDEA1"
+        android:pathData="M54,28 L54,64 L34,64 Z" />
+
+    <!-- mast -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M53,26 L55,26 L55,66 L53,66 Z" />
+
+    <!-- hull -->
+    <path
+        android:fillColor="#FFB59B"
+        android:pathData="M30,66 L78,66 L70,80 L38,80 Z" />
+
+    <!-- wave -->
+    <path
+        android:fillColor="#9EEFFF"
+        android:pathData="M18,86 C28,80 38,92 48,86 C58,80 68,92 78,86 C84,83 88,84 90,86 L90,96 L18,96 Z" />
+
+</vector>
