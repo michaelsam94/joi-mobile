@@ -18,9 +18,13 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.joi.app.di.AppContainer
@@ -39,6 +43,19 @@ fun MembersScreen(container: AppContainer, onOpenMember: (String) -> Unit, onReg
         factory = viewModelFactoryOf { MembersViewModel(container.listMembersUseCase) },
     )
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    // Registering, editing, or deactivating a member all happen on a screen pushed on top of this
+    // one (Register/MemberDetail) — reload every time we come back to the top of the back stack so
+    // the list reflects those changes the moment the "Save"/back action returns here, instead of
+    // showing stale data until the user manually refreshes.
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) viewModel.refresh()
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
 
     Scaffold(
         topBar = { JoiTopBar(title = "Members") },

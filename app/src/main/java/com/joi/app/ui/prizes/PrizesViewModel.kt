@@ -74,10 +74,15 @@ class PrizesViewModel(
         _uiState.value = _uiState.value.copy(showEditor = false)
     }
 
-    fun savePrize(name: String, description: String, pointsCost: Int) {
+    fun savePrize(name: String, description: String, pointsCost: Int, imageUrl: String?) {
         viewModelScope.launch {
             val editing = _uiState.value.editingPrize
-            val input = PrizeInput(name = name, description = description.ifBlank { null }, pointsCost = pointsCost)
+            val input = PrizeInput(
+                name = name,
+                description = description.ifBlank { null },
+                pointsCost = pointsCost,
+                imageUrl = imageUrl,
+            )
             when (val result = savePrizeUseCase(editing?.id, input)) {
                 is AppResult.Success -> {
                     _uiState.value = _uiState.value.copy(showEditor = false)

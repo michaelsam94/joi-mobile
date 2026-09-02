@@ -175,11 +175,12 @@ private fun PrizeEditorDialog(
     initial: Prize?,
     errorMessage: String?,
     onDismiss: () -> Unit,
-    onSave: (name: String, description: String, pointsCost: Int) -> Unit,
+    onSave: (name: String, description: String, pointsCost: Int, imageUrl: String?) -> Unit,
 ) {
     var name by remember { mutableStateOf(initial?.name.orEmpty()) }
     var description by remember { mutableStateOf(initial?.description.orEmpty()) }
     var pointsText by remember { mutableStateOf(initial?.pointsCost?.toString().orEmpty()) }
+    var imageUrl by remember { mutableStateOf(initial?.imageUrl.orEmpty()) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -200,6 +201,24 @@ private fun PrizeEditorDialog(
                     singleLine = true,
                     modifier = Modifier.padding(top = 8.dp),
                 )
+                OutlinedTextField(
+                    value = imageUrl,
+                    onValueChange = { imageUrl = it },
+                    label = { Text("Image URL (optional)") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                )
+                if (imageUrl.isNotBlank()) {
+                    coil.compose.AsyncImage(
+                        model = imageUrl,
+                        contentDescription = "Preview",
+                        contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 120.dp)
+                            .padding(top = 8.dp),
+                    )
+                }
                 if (errorMessage != null) {
                     Text(errorMessage, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(top = 8.dp))
                 }
@@ -208,7 +227,7 @@ private fun PrizeEditorDialog(
         confirmButton = {
             TextButton(
                 enabled = name.isNotBlank() && (pointsText.toIntOrNull() ?: 0) > 0,
-                onClick = { onSave(name, description, pointsText.toInt()) },
+                onClick = { onSave(name, description, pointsText.toInt(), imageUrl.trim().ifBlank { null }) },
             ) { Text("Save") }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },

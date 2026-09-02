@@ -43,4 +43,16 @@ class MembersViewModel(private val listMembersUseCase: ListMembersUseCase) : Vie
             }
         }
     }
+
+    /** Re-fetches without flipping [MembersUiState.loading] — used to pick up a member that was
+     * just added/edited/deactivated on a screen pushed on top of this one, the moment we come back
+     * to it, without replacing the visible list with a loading spinner first. */
+    fun refresh() {
+        viewModelScope.launch {
+            val result = listMembersUseCase(activeOnly = false)
+            if (result is AppResult.Success) {
+                _uiState.value = _uiState.value.copy(allUsers = result.data)
+            }
+        }
+    }
 }
