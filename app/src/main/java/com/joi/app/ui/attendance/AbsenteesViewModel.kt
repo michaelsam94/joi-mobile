@@ -47,14 +47,20 @@ class AbsenteesViewModel(
         _uiState.value = _uiState.value.copy(sendingReport = true, reportSentMessage = null)
         viewModelScope.launch {
             when (val result = sendWeeklyReportNowUseCase()) {
-                is AppResult.Success -> _uiState.value = _uiState.value.copy(
-                    sendingReport = false,
-                    reportSentMessage = if (result.data.sentToChatIds.isEmpty()) {
-                        "Report generated, but no Telegram chat is configured on the backend yet."
-                    } else {
-                        "Sent to ${result.data.sentToChatIds.size} Telegram chat(s)."
-                    },
-                )
+                is AppResult.Success -> {
+                    val sent = result.data.sentToChatIds.size
+                    val failed = result.data.failedChatIds.size
+                    val message = when {
+                        sent == 0 && failed == 0 ->
+                            "Report generated, but no Telegram chat is configured on the backend yet."
+                        sent == 0 && failed > 0 ->
+                            "Couldn't reach any Telegram chat ($failed failed) — check the bot token/chat ID on the backend."
+                        failed > 0 ->
+                            "Sent to $sent chat(s), but $failed failed — check the backend logs for details."
+                        else -> "Sent to $sent Telegram chat(s)."
+                    }
+                    _uiState.value = _uiState.value.copy(sendingReport = false, reportSentMessage = message)
+                }
                 is AppResult.Failure -> _uiState.value = _uiState.value.copy(
                     sendingReport = false,
                     reportSentMessage = "Couldn't send: ${result.error.message}",

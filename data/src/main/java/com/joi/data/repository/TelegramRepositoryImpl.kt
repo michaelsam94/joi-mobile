@@ -16,6 +16,7 @@ class TelegramRepositoryImpl(private val api: JoiApiService) : TelegramRepositor
                 totalActiveMembers = dto.totalActiveMembers,
                 absentees = dto.absentees.map { it.toDomain() },
                 sentToChatIds = dto.sentToChatIds,
+                failedChatIds = dto.failedChatIds,
             )
         }
 }

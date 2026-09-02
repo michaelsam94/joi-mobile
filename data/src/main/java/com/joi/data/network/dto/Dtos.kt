@@ -161,4 +161,5 @@ data class WeeklyReportResponseDto(
     val totalActiveMembers: Int,
     val absentees: List<AbsenteeDto>,
     val sentToChatIds: List<String>,
+    val failedChatIds: List<String> = emptyList(),
 )

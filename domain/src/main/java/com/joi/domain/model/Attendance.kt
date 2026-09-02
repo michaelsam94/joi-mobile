@@ -20,4 +20,5 @@ data class WeeklyReportResult(
     val totalActiveMembers: Int,
     val absentees: List<Absentee>,
     val sentToChatIds: List<String>,
+    val failedChatIds: List<String> = emptyList(),
 )
