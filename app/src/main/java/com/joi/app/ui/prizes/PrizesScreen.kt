@@ -159,7 +159,10 @@ private fun PrizeCard(
     onDelete: () -> Unit,
     onRedeem: () -> Unit,
 ) {
-    val outOfStock = prize.quantity != null && prize.quantity <= 0
+    // Prize.quantity is a val declared in a different module (domain), so Kotlin won't smart-cast
+    // it across the two `prize.quantity` reads above — read it into a local first.
+    val quantity = prize.quantity
+    val outOfStock = quantity != null && quantity <= 0
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             val cardImageUrl = prize.imageUrl?.let(::normalizeImageUrl)
@@ -199,9 +202,9 @@ private fun PrizeCard(
                 }
                 if (outOfStock) {
                     Text("Out of stock", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelMedium)
-                } else if (prize.quantity != null) {
+                } else if (quantity != null) {
                     Text(
-                        "${prize.quantity} left",
+                        "$quantity left",
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         style = MaterialTheme.typography.labelMedium,
                     )
