@@ -22,14 +22,16 @@ class PrizeRepositoryImpl(private val api: JoiApiService) : PrizeRepository {
 
     override suspend fun createPrize(input: PrizeInput): AppResult<Prize> =
         apiCall {
-            api.createPrize(CreatePrizeRequestDto(input.name, input.description, input.pointsCost, input.imageUrl))
+            api.createPrize(
+                CreatePrizeRequestDto(input.name, input.description, input.pointsCost, input.imageUrl, input.quantity),
+            )
         }.map { it.toDomain() }
 
     override suspend fun updatePrize(prizeId: String, input: PrizeInput, active: Boolean?): AppResult<Prize> =
         apiCall {
             api.updatePrize(
                 prizeId,
-                UpdatePrizeRequestDto(input.name, input.description, input.pointsCost, input.imageUrl, active),
+                UpdatePrizeRequestDto(input.name, input.description, input.pointsCost, input.imageUrl, active, input.quantity),
             )
         }.map { it.toDomain() }
 
@@ -53,4 +55,7 @@ class PrizeRepositoryImpl(private val api: JoiApiService) : PrizeRepository {
         val part = MultipartBody.Part.createFormData("image", "upload.$extension", body)
         return apiCall { api.uploadImage(part) }.map { it.url }
     }
+
+    override suspend fun getRedeemedPrizeIds(): AppResult<Set<String>> =
+        apiCall { api.getRedeemedPrizeIds() }.map { it.prizeIds.toSet() }
 }

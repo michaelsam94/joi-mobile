@@ -23,6 +23,9 @@ data class PublicUser(
     val address: String? = null,
     /** Sunday-school / age-group class. Only present in the same cases as [username]. */
     val className: String? = null,
+    /** A moderator's private note about this member. Only present when a moderator is viewing
+     * someone else — the backend never includes it in a member's own profile. */
+    val note: String? = null,
 )
 
 /** The signed-in person's own session identity — a thin slice kept for quick UI access. */

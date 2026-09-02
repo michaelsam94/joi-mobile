@@ -78,6 +78,7 @@ fun PrizesScreen(container: AppContainer, isModerator: Boolean) {
                 redeemPrizeUseCase = container.redeemPrizeUseCase,
                 listMembersUseCase = container.listMembersUseCase,
                 uploadPrizeImageUseCase = container.uploadPrizeImageUseCase,
+                getRedeemedPrizeIdsUseCase = container.getRedeemedPrizeIdsUseCase,
             )
         },
     )
@@ -107,6 +108,7 @@ fun PrizesScreen(container: AppContainer, isModerator: Boolean) {
                     PrizeCard(
                         prize = prize,
                         isModerator = isModerator,
+                        isRedeemedByMe = prize.id in uiState.redeemedPrizeIds,
                         onEdit = { viewModel.openEdit(prize) },
                         onDelete = { viewModel.deletePrize(prize) },
                         onRedeem = { viewModel.openRedeem(prize) },
@@ -152,10 +154,12 @@ fun PrizesScreen(container: AppContainer, isModerator: Boolean) {
 private fun PrizeCard(
     prize: Prize,
     isModerator: Boolean,
+    isRedeemedByMe: Boolean,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
     onRedeem: () -> Unit,
 ) {
+    val outOfStock = prize.quantity != null && prize.quantity <= 0
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             val cardImageUrl = prize.imageUrl?.let(::normalizeImageUrl)
@@ -163,10 +167,12 @@ private fun PrizeCard(
                 coil.compose.AsyncImage(
                     model = cardImageUrl,
                     contentDescription = prize.name,
-                    contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                    // Fit (not Crop) keeps the whole image visible at its real aspect ratio —
+                    // Crop was slicing the top/bottom off images that didn't match the box shape.
+                    contentScale = androidx.compose.ui.layout.ContentScale.Fit,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(max = 140.dp)
+                        .heightIn(max = 160.dp)
                         .padding(bottom = 8.dp),
                 )
             }
@@ -183,8 +189,26 @@ private fun PrizeCard(
                     modifier = Modifier.padding(top = 4.dp),
                 )
             }
-            if (!prize.active) {
-                Text("Inactive", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelMedium)
+            Row(modifier = Modifier.padding(top = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (isRedeemedByMe) {
+                    Text(
+                        "✅ You've redeemed this",
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.labelMedium,
+                    )
+                }
+                if (outOfStock) {
+                    Text("Out of stock", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelMedium)
+                } else if (prize.quantity != null) {
+                    Text(
+                        "${prize.quantity} left",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.labelMedium,
+                    )
+                }
+                if (!prize.active) {
+                    Text("Inactive", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelMedium)
+                }
             }
 
             if (isModerator) {
@@ -192,7 +216,11 @@ private fun PrizeCard(
                     IconButton(onClick = onEdit) { Icon(Icons.Default.Edit, contentDescription = "Edit") }
                     IconButton(onClick = onDelete) { Icon(Icons.Default.Delete, contentDescription = "Delete") }
                 }
-                JoiPrimaryButton(text = "Redeem for a member", onClick = onRedeem)
+                JoiPrimaryButton(
+                    text = if (outOfStock) "Out of stock" else "Redeem for a member",
+                    onClick = onRedeem,
+                    enabled = !outOfStock,
+                )
             }
         }
     }
@@ -204,13 +232,14 @@ private fun PrizeEditorDialog(
     errorMessage: String?,
     uploading: Boolean,
     onDismiss: () -> Unit,
-    onSave: (name: String, description: String, pointsCost: Int, imageUrl: String?) -> Unit,
+    onSave: (name: String, description: String, pointsCost: Int, imageUrl: String?, quantity: Int?) -> Unit,
     onUploadImage: (bytes: ByteArray, mimeType: String, onDone: (String?) -> Unit) -> Unit,
 ) {
     var name by remember { mutableStateOf(initial?.name.orEmpty()) }
     var description by remember { mutableStateOf(initial?.description.orEmpty()) }
     var pointsText by remember { mutableStateOf(initial?.pointsCost?.toString().orEmpty()) }
     var imageUrl by remember { mutableStateOf(initial?.imageUrl.orEmpty()) }
+    var quantityText by remember { mutableStateOf(initial?.quantity?.toString().orEmpty()) }
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -248,6 +277,13 @@ private fun PrizeEditorDialog(
                     modifier = Modifier.padding(top = 8.dp),
                 )
                 OutlinedTextField(
+                    value = quantityText,
+                    onValueChange = { quantityText = it.filter { c -> c.isDigit() } },
+                    label = { Text("Quantity in stock (leave blank for unlimited)") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                )
+                OutlinedTextField(
                     value = imageUrl,
                     onValueChange = { imageUrl = it },
                     label = { Text("Image URL (optional)") },
@@ -280,10 +316,10 @@ private fun PrizeEditorDialog(
                     coil.compose.AsyncImage(
                         model = previewUrl,
                         contentDescription = "Preview",
-                        contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                        contentScale = androidx.compose.ui.layout.ContentScale.Fit,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .heightIn(max = 120.dp)
+                            .heightIn(max = 160.dp)
                             .padding(top = 8.dp),
                     )
                 }
@@ -295,7 +331,9 @@ private fun PrizeEditorDialog(
         confirmButton = {
             TextButton(
                 enabled = !uploading && name.isNotBlank() && (pointsText.toIntOrNull() ?: 0) > 0,
-                onClick = { onSave(name, description, pointsText.toInt(), normalizeImageUrl(imageUrl)) },
+                onClick = {
+                    onSave(name, description, pointsText.toInt(), normalizeImageUrl(imageUrl), quantityText.toIntOrNull())
+                },
             ) { Text("Save") }
         },
         dismissButton = { TextButton(enabled = !uploading, onClick = onDismiss) { Text("Cancel") } },

@@ -60,6 +60,9 @@ interface JoiApiService {
     @POST("prizes/{id}/redeem")
     suspend fun redeemPrize(@Path("id") id: String, @Body body: RedeemPrizeRequestDto): Response<PrizeRedemptionDto>
 
+    @GET("prizes/redeemed-by-me")
+    suspend fun getRedeemedPrizeIds(): Response<RedeemedPrizeIdsResponseDto>
+
     @POST("telegram/send-weekly-report")
     suspend fun sendWeeklyReport(): Response<WeeklyReportResponseDto>
 

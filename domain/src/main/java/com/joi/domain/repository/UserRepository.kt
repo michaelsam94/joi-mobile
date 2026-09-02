@@ -24,6 +24,10 @@ data class UpdateUserInput(
     val phoneNumber: String? = null,
     val address: String? = null,
     val className: String? = null,
+    val note: String? = null,
+    /** Set to reset a member's forgotten password — hashed server-side and forces them to change
+     * it on next login, same as a brand-new registration. */
+    val temporaryPassword: String? = null,
 )
 
 interface UserRepository {

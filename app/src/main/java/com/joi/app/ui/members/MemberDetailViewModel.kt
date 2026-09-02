@@ -133,6 +133,8 @@ class MemberDetailViewModel(
         phoneNumber: String?,
         address: String?,
         className: String?,
+        note: String?,
+        temporaryPassword: String?,
     ) {
         if (_uiState.value.editLoading) return
         _uiState.value = _uiState.value.copy(editLoading = true, editError = null)
@@ -146,6 +148,8 @@ class MemberDetailViewModel(
                     phoneNumber = phoneNumber,
                     address = address,
                     className = className,
+                    note = note,
+                    temporaryPassword = temporaryPassword,
                 )
             ) {
                 is AppResult.Success -> {

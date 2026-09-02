@@ -7,6 +7,8 @@ data class Prize(
     val pointsCost: Int,
     val imageUrl: String?,
     val active: Boolean,
+    /** Remaining stock. Null means unlimited. 0 means out of stock — redemption is blocked. */
+    val quantity: Int? = null,
 )
 
 data class PrizeRedemption(

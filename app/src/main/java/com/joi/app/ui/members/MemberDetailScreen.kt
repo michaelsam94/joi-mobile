@@ -110,6 +110,7 @@ fun MemberDetailScreen(container: AppContainer, userId: String, onBack: () -> Un
                             ProfileField("Phone number", user.phoneNumber)
                             ProfileField("Address", user.address)
                             ProfileField("Class", user.className)
+                            ProfileField("Note", user.note)
                         }
                     }
                 }
@@ -183,6 +184,21 @@ private fun ProfileField(label: String, value: String?) {
     }
 }
 
+/** Keeps the date-of-birth field to exactly YYYY-MM-DD: strips non-digits, caps at 8 digits, and
+ * auto-inserts the two dashes as the person types — so the field can never end up in a shape the
+ * backend's `dateOfBirthSchema` would reject. */
+private fun formatDateOfBirthInput(raw: String): String {
+    val digits = raw.filter { it.isDigit() }.take(8)
+    return buildString {
+        for (i in digits.indices) {
+            if (i == 4 || i == 6) append('-')
+            append(digits[i])
+        }
+    }
+}
+
+private val DATE_OF_BIRTH_REGEX = Regex("^\\d{4}-\\d{2}-\\d{2}$")
+
 private fun PointType.label(): String = when (this) {
     PointType.ATTENDANCE -> "Attendance"
     PointType.MANUAL_ADD -> "Bonus"
@@ -254,6 +270,8 @@ private fun EditMemberDialog(
         phoneNumber: String?,
         address: String?,
         className: String?,
+        note: String?,
+        temporaryPassword: String?,
     ) -> Unit,
 ) {
     var fullName by remember { mutableStateOf(user.fullName) }
@@ -262,6 +280,11 @@ private fun EditMemberDialog(
     var phoneNumber by remember { mutableStateOf(user.phoneNumber.orEmpty()) }
     var address by remember { mutableStateOf(user.address.orEmpty()) }
     var className by remember { mutableStateOf(user.className.orEmpty()) }
+    var note by remember { mutableStateOf(user.note.orEmpty()) }
+    var temporaryPassword by remember { mutableStateOf("") }
+
+    val dateOfBirthValid = dateOfBirth.isBlank() || DATE_OF_BIRTH_REGEX.matches(dateOfBirth)
+    val temporaryPasswordValid = temporaryPassword.isBlank() || temporaryPassword.length >= 6
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -277,8 +300,10 @@ private fun EditMemberDialog(
                 )
                 OutlinedTextField(
                     value = dateOfBirth,
-                    onValueChange = { dateOfBirth = it },
+                    onValueChange = { dateOfBirth = formatDateOfBirthInput(it) },
                     label = { Text("Date of birth (YYYY-MM-DD)") },
+                    placeholder = { Text("YYYY-MM-DD") },
+                    isError = !dateOfBirthValid,
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                 )
@@ -302,6 +327,25 @@ private fun EditMemberDialog(
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                 )
+                OutlinedTextField(
+                    value = note,
+                    onValueChange = { note = it },
+                    label = { Text("Note (only moderators see this)") },
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                )
+                OutlinedTextField(
+                    value = temporaryPassword,
+                    onValueChange = { temporaryPassword = it },
+                    label = { Text("Reset password (optional)") },
+                    placeholder = { Text("Leave blank to keep their current password") },
+                    isError = !temporaryPasswordValid,
+                    supportingText = {
+                        if (!temporaryPasswordValid) Text("Must be at least 6 characters")
+                        else Text("Sets a temporary password they'll be asked to change on next login")
+                    },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                )
                 Row(
                     modifier = Modifier.padding(top = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -316,7 +360,7 @@ private fun EditMemberDialog(
         },
         confirmButton = {
             TextButton(
-                enabled = !loading && fullName.isNotBlank(),
+                enabled = !loading && fullName.isNotBlank() && dateOfBirthValid && temporaryPasswordValid,
                 onClick = {
                     onConfirm(
                         fullName,
@@ -325,6 +369,8 @@ private fun EditMemberDialog(
                         phoneNumber.trim().ifBlank { null },
                         address.trim().ifBlank { null },
                         className.trim().ifBlank { null },
+                        note.trim().ifBlank { null },
+                        temporaryPassword.trim().ifBlank { null },
                     )
                 },
             ) { Text("Save") }

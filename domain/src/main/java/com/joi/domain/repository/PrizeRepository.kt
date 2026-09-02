@@ -9,6 +9,8 @@ data class PrizeInput(
     val description: String?,
     val pointsCost: Int,
     val imageUrl: String? = null,
+    /** Starting/updated stock. Null means unlimited (no change to stock tracking). */
+    val quantity: Int? = null,
 )
 
 interface PrizeRepository {
@@ -20,4 +22,7 @@ interface PrizeRepository {
     /** Uploads raw image bytes (picked from the gallery, not a URL someone had to already have)
      * and returns the hosted URL to use as a prize's imageUrl. */
     suspend fun uploadImage(bytes: ByteArray, mimeType: String): AppResult<String>
+    /** Every prize id the signed-in user has personally redeemed before — powers a "you've
+     * redeemed this" badge on the prize list. */
+    suspend fun getRedeemedPrizeIds(): AppResult<Set<String>>
 }

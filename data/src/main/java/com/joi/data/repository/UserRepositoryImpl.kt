@@ -48,6 +48,8 @@ class UserRepositoryImpl(private val api: JoiApiService) : UserRepository {
                     phoneNumber = input.phoneNumber,
                     address = input.address,
                     className = input.className,
+                    note = input.note,
+                    temporaryPassword = input.temporaryPassword,
                 ),
             )
         }.map { it.toDomain() }

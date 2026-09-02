@@ -32,6 +32,7 @@ internal fun PublicUserDto.toDomain() = PublicUser(
     phoneNumber = phoneNumber,
     address = address,
     className = className,
+    note = note,
 )
 
 internal fun CurrentUserDto.toDomain() = CurrentUser(id = id, fullName = fullName, role = role.toRole())
@@ -59,6 +60,7 @@ internal fun PrizeDto.toDomain() = Prize(
     pointsCost = pointsCost,
     imageUrl = imageUrl,
     active = active,
+    quantity = quantity,
 )
 
 internal fun PrizeRedemptionDto.toDomain() = PrizeRedemption(

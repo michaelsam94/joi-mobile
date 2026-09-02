@@ -29,6 +29,7 @@ import com.joi.domain.usecase.CheckInUseCase
 import com.joi.domain.usecase.DeletePrizeUseCase
 import com.joi.domain.usecase.GetAbsenteesUseCase
 import com.joi.domain.usecase.GetLeaderboardUseCase
+import com.joi.domain.usecase.GetRedeemedPrizeIdsUseCase
 import com.joi.domain.usecase.GetMemberPointsHistoryUseCase
 import com.joi.domain.usecase.GetMemberQrCodeUseCase
 import com.joi.domain.usecase.GetMemberUseCase
@@ -105,4 +106,5 @@ class AppContainer(context: Context) {
     val deletePrizeUseCase = DeletePrizeUseCase(prizeRepository)
     val redeemPrizeUseCase = RedeemPrizeUseCase(prizeRepository)
     val uploadPrizeImageUseCase = UploadPrizeImageUseCase(prizeRepository)
+    val getRedeemedPrizeIdsUseCase = GetRedeemedPrizeIdsUseCase(prizeRepository)
 }

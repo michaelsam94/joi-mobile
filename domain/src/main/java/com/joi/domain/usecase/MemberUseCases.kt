@@ -60,6 +60,8 @@ class SetMemberActiveUseCase(private val userRepository: UserRepository) {
         userRepository.updateUser(userId, UpdateUserInput(active = active))
 }
 
+private val DATE_OF_BIRTH_PATTERN = Regex("^\\d{4}-\\d{2}-\\d{2}$")
+
 /** Edits a member's profile: name, role, and the contact/personal fields moderators keep on file. */
 class UpdateMemberUseCase(private val userRepository: UserRepository) {
     suspend operator fun invoke(
@@ -70,19 +72,31 @@ class UpdateMemberUseCase(private val userRepository: UserRepository) {
         phoneNumber: String?,
         address: String?,
         className: String?,
+        note: String?,
+        temporaryPassword: String?,
     ): AppResult<PublicUser> {
         if (fullName.isBlank()) {
             return AppResult.Failure(AppError("VALIDATION_ERROR", "Full name is required"))
+        }
+        val trimmedDob = dateOfBirth?.trim()?.ifBlank { null }
+        if (trimmedDob != null && !DATE_OF_BIRTH_PATTERN.matches(trimmedDob)) {
+            return AppResult.Failure(AppError("VALIDATION_ERROR", "Date of birth must be in YYYY-MM-DD format"))
+        }
+        val trimmedTempPassword = temporaryPassword?.trim()?.ifBlank { null }
+        if (trimmedTempPassword != null && trimmedTempPassword.length < 6) {
+            return AppResult.Failure(AppError("VALIDATION_ERROR", "Temporary password must be at least 6 characters"))
         }
         return userRepository.updateUser(
             userId,
             UpdateUserInput(
                 fullName = fullName.trim(),
                 role = role,
-                dateOfBirth = dateOfBirth?.trim()?.ifBlank { null },
+                dateOfBirth = trimmedDob,
                 phoneNumber = phoneNumber?.trim()?.ifBlank { null },
                 address = address?.trim()?.ifBlank { null },
                 className = className?.trim()?.ifBlank { null },
+                note = note?.trim()?.ifBlank { null },
+                temporaryPassword = trimmedTempPassword,
             ),
         )
     }

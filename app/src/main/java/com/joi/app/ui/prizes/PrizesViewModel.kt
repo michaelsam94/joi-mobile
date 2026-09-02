@@ -8,6 +8,7 @@ import com.joi.domain.model.PublicUser
 import com.joi.domain.model.Role
 import com.joi.domain.repository.PrizeInput
 import com.joi.domain.usecase.DeletePrizeUseCase
+import com.joi.domain.usecase.GetRedeemedPrizeIdsUseCase
 import com.joi.domain.usecase.ListMembersUseCase
 import com.joi.domain.usecase.ListPrizesUseCase
 import com.joi.domain.usecase.RedeemPrizeUseCase
@@ -29,6 +30,9 @@ data class PrizesUiState(
     val actionError: String? = null,
     val actionMessage: String? = null,
     val uploadingImage: Boolean = false,
+    /** Prize ids the signed-in user has personally redeemed before — drives the "you've redeemed
+     * this" badge. */
+    val redeemedPrizeIds: Set<String> = emptySet(),
 )
 
 class PrizesViewModel(
@@ -39,6 +43,7 @@ class PrizesViewModel(
     private val redeemPrizeUseCase: RedeemPrizeUseCase,
     private val listMembersUseCase: ListMembersUseCase,
     private val uploadPrizeImageUseCase: UploadPrizeImageUseCase,
+    private val getRedeemedPrizeIdsUseCase: GetRedeemedPrizeIdsUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PrizesUiState())
@@ -62,6 +67,10 @@ class PrizesViewModel(
                     _uiState.value = _uiState.value.copy(members = members.data.filter { it.role == Role.MEMBER })
                 }
             }
+            val redeemed = getRedeemedPrizeIdsUseCase()
+            if (redeemed is AppResult.Success) {
+                _uiState.value = _uiState.value.copy(redeemedPrizeIds = redeemed.data)
+            }
         }
     }
 
@@ -77,7 +86,7 @@ class PrizesViewModel(
         _uiState.value = _uiState.value.copy(showEditor = false)
     }
 
-    fun savePrize(name: String, description: String, pointsCost: Int, imageUrl: String?) {
+    fun savePrize(name: String, description: String, pointsCost: Int, imageUrl: String?, quantity: Int?) {
         viewModelScope.launch {
             val editing = _uiState.value.editingPrize
             val input = PrizeInput(
@@ -85,6 +94,7 @@ class PrizesViewModel(
                 description = description.ifBlank { null },
                 pointsCost = pointsCost,
                 imageUrl = imageUrl,
+                quantity = quantity,
             )
             when (val result = savePrizeUseCase(editing?.id, input)) {
                 is AppResult.Success -> {

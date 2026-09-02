@@ -58,6 +58,14 @@ class RedeemPrizeUseCase(private val prizeRepository: PrizeRepository) {
                 ),
             )
         }
+        if (prize.quantity != null && prize.quantity <= 0) {
+            return AppResult.Failure(AppError("VALIDATION_ERROR", "\"${prize.name}\" is out of stock"))
+        }
         return prizeRepository.redeemPrize(prize.id, userId)
     }
+}
+
+/** Powers the "you've redeemed this" badge on the prize list. */
+class GetRedeemedPrizeIdsUseCase(private val prizeRepository: PrizeRepository) {
+    suspend operator fun invoke(): AppResult<Set<String>> = prizeRepository.getRedeemedPrizeIds()
 }

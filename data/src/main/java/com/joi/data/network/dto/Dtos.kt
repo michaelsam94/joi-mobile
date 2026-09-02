@@ -44,6 +44,7 @@ data class PublicUserDto(
     val phoneNumber: String? = null,
     val address: String? = null,
     val className: String? = null,
+    val note: String? = null,
 )
 
 @Serializable
@@ -67,6 +68,8 @@ data class UpdateUserRequestDto(
     val phoneNumber: String? = null,
     val address: String? = null,
     val className: String? = null,
+    val note: String? = null,
+    val temporaryPassword: String? = null,
 )
 
 @Serializable
@@ -120,6 +123,7 @@ data class PrizeDto(
     val pointsCost: Int,
     val imageUrl: String? = null,
     val active: Boolean,
+    val quantity: Int? = null,
 )
 
 @Serializable
@@ -128,6 +132,7 @@ data class CreatePrizeRequestDto(
     val description: String? = null,
     val pointsCost: Int,
     val imageUrl: String? = null,
+    val quantity: Int? = null,
 )
 
 @Serializable
@@ -137,7 +142,11 @@ data class UpdatePrizeRequestDto(
     val pointsCost: Int? = null,
     val imageUrl: String? = null,
     val active: Boolean? = null,
+    val quantity: Int? = null,
 )
+
+@Serializable
+data class RedeemedPrizeIdsResponseDto(val prizeIds: List<String>)
 
 @Serializable
 data class RedeemPrizeRequestDto(val userId: String)
