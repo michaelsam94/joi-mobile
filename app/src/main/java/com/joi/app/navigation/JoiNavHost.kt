@@ -40,6 +40,7 @@ import com.joi.app.ui.members.MembersScreen
 import com.joi.app.ui.members.RegisterMemberScreen
 import com.joi.app.ui.prizes.PrizesScreen
 import com.joi.app.ui.profile.ProfileScreen
+import com.joi.app.ui.raffle.LuckyWheelScreen
 import com.joi.designsystem.components.LoadingState
 import com.joi.domain.model.Role
 import com.joi.domain.session.SessionState
@@ -138,10 +139,17 @@ private fun MainScaffold(container: AppContainer, session: SessionState) {
 
             if (isModerator) {
                 composable(Destinations.SCAN) {
-                    CheckInScreen(container, onOpenAbsentees = { navController.navigate(Destinations.ABSENTEES) })
+                    CheckInScreen(
+                        container,
+                        onOpenAbsentees = { navController.navigate(Destinations.ABSENTEES) },
+                        onOpenLuckyWheel = { navController.navigate(Destinations.LUCKY_WHEEL) },
+                    )
                 }
                 composable(Destinations.ABSENTEES) {
                     AbsenteesScreen(container, onBack = { navController.popBackStack() })
+                }
+                composable(Destinations.LUCKY_WHEEL) {
+                    LuckyWheelScreen(container, onBack = { navController.popBackStack() })
                 }
                 composable(Destinations.MEMBERS) {
                     MembersScreen(

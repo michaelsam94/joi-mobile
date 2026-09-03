@@ -8,6 +8,7 @@ object Destinations {
     const val PROFILE = "profile"
     const val SCAN = "scan"
     const val ABSENTEES = "absentees"
+    const val LUCKY_WHEEL = "lucky_wheel"
     const val MEMBERS = "members"
     const val REGISTER_MEMBER = "register_member"
 

@@ -92,7 +92,10 @@ it — much cleaner than me hand-writing placeholder XML you'd replace anyway.
   attendance count and a "send weekly report now" button that hits the same endpoint the Friday
   cron uses. The check-in popup offers an optional "give a draw number" action — a temporary
   number for that meeting's raffle or activity — and the top bar has a reset that clears everyone's
-  at once when the activity is done.
+  at once when the activity is done. A **Lucky Wheel** screen spins over the numbers in play to
+  draw a winner: numbers only, no names anywhere, so the pick can't be steered towards a person —
+  and each drawn number can be kept in for the next round or taken out so it can't win twice.
+  Taking one out is local to that screen; the member keeps their number.
 - **Members (moderator)**: list + search — by name, or by draw number, so a called number can be
   traced to a person mid-raffle — register a new person (name/username/temp password),
   member detail screen with their QR code, active/inactive toggle, and an add/remove-points action

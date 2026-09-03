@@ -22,6 +22,9 @@ class AttendanceRepositoryImpl(private val api: JoiApiService) : AttendanceRepos
     override suspend fun assignRaffleNumber(userId: String): AppResult<RaffleNumberAssignment> =
         apiCall { api.assignRaffleNumber(AssignRaffleNumberRequestDto(userId)) }.map { it.toDomain() }
 
+    override suspend fun listRaffleNumbers(): AppResult<List<Int>> =
+        apiCall { api.getRaffleNumbers() }.map { it.numbers }
+
     override suspend fun resetRaffleNumbers(): AppResult<Int> =
         apiCall { api.resetRaffleNumbers() }.map { it.cleared }
 }

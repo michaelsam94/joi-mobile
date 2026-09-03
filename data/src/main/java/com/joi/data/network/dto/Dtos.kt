@@ -119,6 +119,9 @@ data class RaffleNumberAssignmentDto(
 data class ResetRaffleNumbersResponseDto(val cleared: Int)
 
 @Serializable
+data class RaffleNumbersResponseDto(val numbers: List<Int> = emptyList(), val count: Int = 0)
+
+@Serializable
 data class AdjustPointsRequestDto(val userId: String, val points: Int, val reason: String)
 
 @Serializable

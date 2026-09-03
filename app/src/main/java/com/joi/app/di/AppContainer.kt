@@ -45,6 +45,7 @@ import com.joi.domain.usecase.GetMemberUseCase
 import com.joi.domain.usecase.GetMyEventPaymentsUseCase
 import com.joi.domain.usecase.GetMyProfileUseCase
 import com.joi.domain.usecase.ListEventsUseCase
+import com.joi.domain.usecase.ListRaffleNumbersUseCase
 import com.joi.domain.usecase.ListMembersUseCase
 import com.joi.domain.usecase.ListPrizesUseCase
 import com.joi.domain.usecase.LoginUseCase
@@ -115,6 +116,7 @@ class AppContainer(context: Context) {
     val getAbsenteesUseCase = GetAbsenteesUseCase(attendanceRepository)
     val sendWeeklyReportNowUseCase = SendWeeklyReportNowUseCase(telegramRepository)
     val assignRaffleNumberUseCase = AssignRaffleNumberUseCase(attendanceRepository)
+    val listRaffleNumbersUseCase = ListRaffleNumbersUseCase(attendanceRepository)
     val resetRaffleNumbersUseCase = ResetRaffleNumbersUseCase(attendanceRepository)
 
     // Points & leaderboard

@@ -39,6 +39,9 @@ interface JoiApiService {
     @POST("attendance/raffle-number")
     suspend fun assignRaffleNumber(@Body body: AssignRaffleNumberRequestDto): Response<RaffleNumberAssignmentDto>
 
+    @GET("attendance/raffle-numbers")
+    suspend fun getRaffleNumbers(): Response<RaffleNumbersResponseDto>
+
     @POST("attendance/raffle-number/reset")
     suspend fun resetRaffleNumbers(): Response<ResetRaffleNumbersResponseDto>
 

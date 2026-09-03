@@ -35,6 +35,14 @@ class AssignRaffleNumberUseCase(private val attendanceRepository: AttendanceRepo
     }
 }
 
+/**
+ * The pool of numbers in play, with nothing attached that says who holds which. Feeds the lucky
+ * wheel — a moderator picks from the numbers without being able to steer the pick toward a person.
+ */
+class ListRaffleNumbersUseCase(private val attendanceRepository: AttendanceRepository) {
+    suspend operator fun invoke(): AppResult<List<Int>> = attendanceRepository.listRaffleNumbers()
+}
+
 /** "The activity is over" — clears every draw number at once, so they vanish from members'
  * profiles and the pool is free for the next meeting. */
 class ResetRaffleNumbersUseCase(private val attendanceRepository: AttendanceRepository) {

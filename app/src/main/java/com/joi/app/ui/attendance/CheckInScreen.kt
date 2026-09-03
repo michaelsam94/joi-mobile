@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.QrCodeScanner
+import androidx.compose.material.icons.filled.Casino
 import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
@@ -47,7 +48,7 @@ import com.joi.designsystem.components.JoiTopBar
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CheckInScreen(container: AppContainer, onOpenAbsentees: () -> Unit) {
+fun CheckInScreen(container: AppContainer, onOpenAbsentees: () -> Unit, onOpenLuckyWheel: () -> Unit) {
     val context = LocalContext.current
     val scanner = remember { GmsBarcodeScanning.getClient(context) }
 
@@ -67,6 +68,9 @@ fun CheckInScreen(container: AppContainer, onOpenAbsentees: () -> Unit) {
             JoiTopBar(
                 title = "Check In",
                 actions = {
+                    IconButton(onClick = onOpenLuckyWheel) {
+                        Icon(Icons.Default.Casino, contentDescription = "Lucky wheel")
+                    }
                     IconButton(onClick = viewModel::askResetNumbers) {
                         Icon(Icons.Default.RestartAlt, contentDescription = "Reset draw numbers")
                     }
