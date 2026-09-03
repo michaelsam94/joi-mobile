@@ -34,7 +34,9 @@ import com.joi.designsystem.components.ErrorState
 import com.joi.designsystem.components.JoiTopBar
 import com.joi.designsystem.components.LevelBadge
 import com.joi.designsystem.components.LoadingState
+import com.joi.designsystem.components.ModeratorBadge
 import com.joi.designsystem.components.PointsPill
+import com.joi.domain.model.Role
 
 /** Moderator-only: browse/search everyone, tap through to a member's detail, or register someone new via the FAB. */
 @Composable
@@ -113,6 +115,9 @@ fun MembersScreen(container: AppContainer, onOpenMember: (String) -> Unit, onReg
                                     modifier = Modifier.padding(top = 6.dp),
                                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                                 ) {
+                                    if (user.role == Role.MODERATOR) {
+                                        ModeratorBadge()
+                                    }
                                     LevelBadge(level = user.level)
                                     PointsPill(points = user.totalPoints)
                                 }

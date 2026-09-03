@@ -25,3 +25,12 @@ fun formatEventDate(isoDate: String): String =
 
 /** Today in the same YYYY-MM-DD shape the backend uses, for defaulting a new event's date. */
 fun todayIsoDate(): String = LocalDate.now().toString()
+
+/**
+ * Keeps just the YYYY-MM-DD prefix of a date string — the backend is expected to send a bare
+ * date with nothing else, but this is cheap defense-in-depth against a stray time component
+ * (an ISO timestamp like "1995-03-20T00:00:00.000Z" slices down to "1995-03-20" here) so a
+ * display bug in a date-only field can't also corrupt the value an edit dialog pre-fills and
+ * would otherwise resubmit unchanged. A no-op on an already-bare date. Blank/null stays null.
+ */
+fun normalizeIsoDate(raw: String?): String? = raw?.takeIf { it.isNotBlank() }?.take(10)

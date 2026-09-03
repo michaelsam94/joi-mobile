@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.joi.app.di.AppContainer
+import com.joi.app.util.normalizeIsoDate
 import com.joi.app.util.viewModelFactoryOf
 import com.joi.designsystem.components.ErrorState
 import com.joi.designsystem.components.JoiPrimaryButton
@@ -41,6 +42,7 @@ import com.joi.designsystem.components.JoiSecondaryButton
 import com.joi.designsystem.components.JoiTopBar
 import com.joi.designsystem.components.LevelBadge
 import com.joi.designsystem.components.LoadingState
+import com.joi.designsystem.components.ModeratorBadge
 import com.joi.designsystem.components.PointsPill
 import com.joi.designsystem.components.QrCodeImage
 import com.joi.domain.model.PointType
@@ -97,6 +99,9 @@ fun MemberDetailScreen(container: AppContainer, userId: String, onBack: () -> Un
                             modifier = Modifier.padding(top = 12.dp),
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
+                            if (user.role == Role.MODERATOR) {
+                                ModeratorBadge()
+                            }
                             LevelBadge(level = user.level)
                             PointsPill(points = user.totalPoints)
                         }
@@ -108,7 +113,7 @@ fun MemberDetailScreen(container: AppContainer, userId: String, onBack: () -> Un
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text("Profile", style = MaterialTheme.typography.titleMedium)
                             ProfileField("Username", user.username)
-                            ProfileField("Date of birth", user.dateOfBirth)
+                            ProfileField("Date of birth", normalizeIsoDate(user.dateOfBirth))
                             ProfileField("Phone number", user.phoneNumber)
                             ProfileField("Address", user.address)
                             ProfileField("Class", user.className)
@@ -295,7 +300,7 @@ private fun EditMemberDialog(
 ) {
     var fullName by remember { mutableStateOf(user.fullName) }
     var isModerator by remember { mutableStateOf(user.role == Role.MODERATOR) }
-    var dateOfBirth by remember { mutableStateOf(user.dateOfBirth.orEmpty()) }
+    var dateOfBirth by remember { mutableStateOf(normalizeIsoDate(user.dateOfBirth).orEmpty()) }
     var phoneNumber by remember { mutableStateOf(user.phoneNumber.orEmpty()) }
     var address by remember { mutableStateOf(user.address.orEmpty()) }
     var className by remember { mutableStateOf(user.className.orEmpty()) }

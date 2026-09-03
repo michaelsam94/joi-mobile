@@ -101,11 +101,14 @@ it — much cleaner than me hand-writing placeholder XML you'd replace anyway.
   and each drawn number can be kept in for the next round or taken out so it can't win twice.
   Taking one out is local to that screen; the member keeps their number.
 - **Members (moderator)**: list + search — by name, or by draw number, so a called number can be
-  traced to a person mid-raffle. The seeded admin account shows a 🔒 and offers no edit or
-  deactivate action — the backend refuses those for a protected account regardless, so the app
-  doesn't offer a button that would only fail. Register a new person (name/username/temp password),
-  member detail screen with their QR code, active/inactive toggle, and an add/remove-points action
-  with a required reason.
+  traced to a person mid-raffle. A moderator's row (in the list and on their detail screen) carries
+  a 🛡️ Moderator badge, since the list mixes both roles and that's not otherwise visible without
+  opening the edit dialog. The seeded admin account shows a 🔒 and offers no edit or deactivate
+  action — the backend refuses those for a protected account regardless, so the app doesn't offer a
+  button that would only fail. Register a new person (name/username/temp password), member detail
+  screen with their QR code (date of birth shown as plain YYYY-MM-DD, however the backend's raw DB
+  driver happens to hand it back), active/inactive toggle, and an add/remove-points action with a
+  required reason.
 - **Prizes**: everyone can browse the catalog; moderators can add/edit/deactivate prizes and
   redeem one for a member (with the same insufficient-balance check the backend enforces).
 - **Events**: everyone sees the upcoming events (name, date/time, location, price, poster) with
