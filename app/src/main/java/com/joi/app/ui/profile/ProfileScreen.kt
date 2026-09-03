@@ -112,6 +112,38 @@ fun ProfileScreen(container: AppContainer, isModerator: Boolean) {
                     }
                 }
 
+                // Only rendered while they actually hold a number. A moderator resetting the
+                // numbers makes the backend stop sending one, so this whole card disappears on
+                // the next load — nothing here has to remember to clear it.
+                user.raffleNumber?.let { number ->
+                    item {
+                        Card(modifier = Modifier.fillMaxWidth()) {
+                            Column(
+                                modifier = Modifier.fillMaxWidth().padding(20.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                            ) {
+                                Text(
+                                    "Your number for today",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                Text(
+                                    "#$number",
+                                    style = MaterialTheme.typography.displayMedium,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.padding(top = 4.dp),
+                                )
+                                Text(
+                                    "Keep an ear out — this is the number for today's draw.",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(top = 4.dp),
+                                )
+                            }
+                        }
+                    }
+                }
+
                 if (isModerator && AppConfig.DATABASE_EXPORT_ENABLED) {
                     item {
                         JoiPrimaryButton(

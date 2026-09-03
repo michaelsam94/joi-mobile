@@ -8,6 +8,15 @@ data class CheckInResult(
     val totalPoints: Int,
 )
 
+/** The outcome of handing someone a temporary draw number from the check-in popup. */
+data class RaffleNumberAssignment(
+    val userId: String,
+    val fullName: String,
+    val raffleNumber: Int,
+    /** True when they already held this number and it was handed back rather than redrawn. */
+    val alreadyHeld: Boolean,
+)
+
 data class Absentee(
     val userId: String,
     val fullName: String,

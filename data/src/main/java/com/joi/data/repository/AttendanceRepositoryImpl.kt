@@ -2,11 +2,13 @@ package com.joi.data.repository
 
 import com.joi.data.network.JoiApiService
 import com.joi.data.network.apiCall
+import com.joi.data.network.dto.AssignRaffleNumberRequestDto
 import com.joi.data.network.dto.CheckInRequestDto
 import com.joi.domain.model.Absentee
 import com.joi.domain.model.AppResult
 import com.joi.domain.model.map
 import com.joi.domain.model.CheckInResult
+import com.joi.domain.model.RaffleNumberAssignment
 import com.joi.domain.repository.AttendanceRepository
 
 class AttendanceRepositoryImpl(private val api: JoiApiService) : AttendanceRepository {
@@ -16,4 +18,10 @@ class AttendanceRepositoryImpl(private val api: JoiApiService) : AttendanceRepos
 
     override suspend fun getAbsentees(meetingDate: String?): AppResult<List<Absentee>> =
         apiCall { api.getAbsentees(meetingDate) }.map { response -> response.absentees.map { it.toDomain() } }
+
+    override suspend fun assignRaffleNumber(userId: String): AppResult<RaffleNumberAssignment> =
+        apiCall { api.assignRaffleNumber(AssignRaffleNumberRequestDto(userId)) }.map { it.toDomain() }
+
+    override suspend fun resetRaffleNumbers(): AppResult<Int> =
+        apiCall { api.resetRaffleNumbers() }.map { it.cleared }
 }

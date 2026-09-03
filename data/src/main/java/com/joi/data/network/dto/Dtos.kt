@@ -45,6 +45,7 @@ data class PublicUserDto(
     val address: String? = null,
     val className: String? = null,
     val note: String? = null,
+    val raffleNumber: Int? = null,
 )
 
 @Serializable
@@ -102,6 +103,20 @@ data class AbsenteeDto(
 
 @Serializable
 data class AbsenteesResponseDto(val meetingDate: String, val absentees: List<AbsenteeDto>)
+
+@Serializable
+data class AssignRaffleNumberRequestDto(val userId: String)
+
+@Serializable
+data class RaffleNumberAssignmentDto(
+    val userId: String,
+    val fullName: String,
+    val raffleNumber: Int,
+    val alreadyHeld: Boolean = false,
+)
+
+@Serializable
+data class ResetRaffleNumbersResponseDto(val cleared: Int)
 
 @Serializable
 data class AdjustPointsRequestDto(val userId: String, val points: Int, val reason: String)

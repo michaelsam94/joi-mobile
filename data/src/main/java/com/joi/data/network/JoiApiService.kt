@@ -36,6 +36,12 @@ interface JoiApiService {
     @POST("attendance/check-in")
     suspend fun checkIn(@Body body: CheckInRequestDto): Response<CheckInResponseDto>
 
+    @POST("attendance/raffle-number")
+    suspend fun assignRaffleNumber(@Body body: AssignRaffleNumberRequestDto): Response<RaffleNumberAssignmentDto>
+
+    @POST("attendance/raffle-number/reset")
+    suspend fun resetRaffleNumbers(): Response<ResetRaffleNumbersResponseDto>
+
     @GET("attendance/absentees")
     suspend fun getAbsentees(@Query("meetingDate") meetingDate: String? = null): Response<AbsenteesResponseDto>
 

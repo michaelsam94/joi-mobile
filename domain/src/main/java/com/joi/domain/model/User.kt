@@ -26,6 +26,10 @@ data class PublicUser(
     /** A moderator's private note about this member. Only present when a moderator is viewing
      * someone else — the backend never includes it in a member's own profile. */
     val note: String? = null,
+    /** A temporary draw number handed out at check-in, for raffles and activities during the
+     * meeting. Null once a moderator has reset the numbers — which is exactly how it disappears
+     * from a member's profile again. */
+    val raffleNumber: Int? = null,
 )
 
 /** The signed-in person's own session identity — a thin slice kept for quick UI access. */

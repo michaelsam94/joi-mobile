@@ -5,15 +5,19 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.QrCodeScanner
+import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -48,7 +52,13 @@ fun CheckInScreen(container: AppContainer, onOpenAbsentees: () -> Unit) {
     val scanner = remember { GmsBarcodeScanning.getClient(context) }
 
     val viewModel: CheckInViewModel = viewModel(
-        factory = viewModelFactoryOf { CheckInViewModel(container.checkInUseCase) },
+        factory = viewModelFactoryOf {
+            CheckInViewModel(
+                checkInUseCase = container.checkInUseCase,
+                assignRaffleNumberUseCase = container.assignRaffleNumberUseCase,
+                resetRaffleNumbersUseCase = container.resetRaffleNumbersUseCase,
+            )
+        },
     )
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -57,6 +67,9 @@ fun CheckInScreen(container: AppContainer, onOpenAbsentees: () -> Unit) {
             JoiTopBar(
                 title = "Check In",
                 actions = {
+                    IconButton(onClick = viewModel::askResetNumbers) {
+                        Icon(Icons.Default.RestartAlt, contentDescription = "Reset draw numbers")
+                    }
                     IconButton(onClick = onOpenAbsentees) {
                         Icon(Icons.Default.List, contentDescription = "Absentees")
                     }
@@ -132,14 +145,98 @@ fun CheckInScreen(container: AppContainer, onOpenAbsentees: () -> Unit) {
             onDismissRequest = viewModel::dismissResult,
             title = { Text("✅ ${result.fullName} checked in!") },
             text = {
-                Text(
-                    "+${result.pointsAwarded} points for ${result.meetingDate}\n" +
-                        "Now at ${result.totalPoints} points total.",
-                )
+                Column {
+                    Text(
+                        "+${result.pointsAwarded} points for ${result.meetingDate}\n" +
+                            "Now at ${result.totalPoints} points total.",
+                    )
+
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
+
+                    // Entirely optional: a meeting with no raffle just never taps this, and
+                    // nobody gets a number.
+                    val number = uiState.assignedNumber
+                    if (number != null) {
+                        Text(
+                            "Draw number",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Text(
+                            "#$number",
+                            style = MaterialTheme.typography.displaySmall,
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                        Text(
+                            "They'll see this on their profile until you reset the numbers.",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    } else {
+                        OutlinedButton(
+                            onClick = viewModel::assignRaffleNumber,
+                            enabled = !uiState.assigningNumber,
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            if (uiState.assigningNumber) {
+                                CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                            } else {
+                                Text("🎲 Give a draw number")
+                            }
+                        }
+                    }
+                    if (uiState.numberError != null) {
+                        Text(
+                            uiState.numberError!!,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.labelMedium,
+                            modifier = Modifier.padding(top = 8.dp),
+                        )
+                    }
+                }
             },
             confirmButton = {
                 TextButton(onClick = viewModel::dismissResult) { Text("Nice") }
             },
+        )
+    }
+
+    if (uiState.showResetConfirm) {
+        AlertDialog(
+            onDismissRequest = viewModel::dismissResetConfirm,
+            title = { Text("Reset all draw numbers?") },
+            text = {
+                Text(
+                    "Everyone's number is cleared and disappears from their profile. " +
+                        "Do this once the raffle or activity is finished.",
+                )
+            },
+            confirmButton = {
+                TextButton(enabled = !uiState.resetting, onClick = viewModel::resetRaffleNumbers) {
+                    Text("Reset")
+                }
+            },
+            dismissButton = {
+                TextButton(enabled = !uiState.resetting, onClick = viewModel::dismissResetConfirm) { Text("Cancel") }
+            },
+        )
+    }
+
+    val cleared = uiState.resetCleared
+    if (cleared != null) {
+        AlertDialog(
+            onDismissRequest = viewModel::dismissResetResult,
+            title = { Text("Numbers reset") },
+            text = {
+                Text(
+                    if (cleared == 0) {
+                        "Nobody had a number to clear."
+                    } else {
+                        "Cleared $cleared number${if (cleared == 1) "" else "s"}."
+                    },
+                )
+            },
+            confirmButton = { TextButton(onClick = viewModel::dismissResetResult) { Text("OK") } },
         )
     }
 }

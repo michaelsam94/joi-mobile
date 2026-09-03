@@ -89,10 +89,24 @@ fun MembersScreen(container: AppContainer, onOpenMember: (String) -> Unit, onReg
                             onClick = { onOpenMember(user.id) },
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
-                                Text(
-                                    text = user.fullName + if (!user.active) " (inactive)" else "",
-                                    style = MaterialTheme.typography.titleMedium,
-                                )
+                                androidx.compose.foundation.layout.Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                ) {
+                                    Text(
+                                        text = user.fullName + if (!user.active) " (inactive)" else "",
+                                        style = MaterialTheme.typography.titleMedium,
+                                    )
+                                    // Shown only while draw numbers are out, so a moderator can
+                                    // call a number and find whose it is by searching this list.
+                                    user.raffleNumber?.let { number ->
+                                        Text(
+                                            "#$number",
+                                            style = MaterialTheme.typography.titleMedium,
+                                            color = MaterialTheme.colorScheme.primary,
+                                        )
+                                    }
+                                }
                                 androidx.compose.foundation.layout.Row(
                                     modifier = Modifier.padding(top = 6.dp),
                                     horizontalArrangement = Arrangement.spacedBy(8.dp),

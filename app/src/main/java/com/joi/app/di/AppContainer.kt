@@ -28,6 +28,7 @@ import com.joi.domain.repository.TelegramRepository
 import com.joi.domain.repository.UserRepository
 import com.joi.domain.session.AuthSession
 import com.joi.domain.usecase.AdjustPointsUseCase
+import com.joi.domain.usecase.AssignRaffleNumberUseCase
 import com.joi.domain.usecase.ChangePasswordUseCase
 import com.joi.domain.usecase.CheckInUseCase
 import com.joi.domain.usecase.DeleteEventPaymentUseCase
@@ -51,6 +52,7 @@ import com.joi.domain.usecase.LogoutUseCase
 import com.joi.domain.usecase.RecordEventPaymentUseCase
 import com.joi.domain.usecase.RedeemPrizeUseCase
 import com.joi.domain.usecase.RegisterMemberUseCase
+import com.joi.domain.usecase.ResetRaffleNumbersUseCase
 import com.joi.domain.usecase.SaveEventUseCase
 import com.joi.domain.usecase.SavePrizeUseCase
 import com.joi.domain.usecase.SendWeeklyReportNowUseCase
@@ -112,6 +114,8 @@ class AppContainer(context: Context) {
     val checkInUseCase = CheckInUseCase(attendanceRepository)
     val getAbsenteesUseCase = GetAbsenteesUseCase(attendanceRepository)
     val sendWeeklyReportNowUseCase = SendWeeklyReportNowUseCase(telegramRepository)
+    val assignRaffleNumberUseCase = AssignRaffleNumberUseCase(attendanceRepository)
+    val resetRaffleNumbersUseCase = ResetRaffleNumbersUseCase(attendanceRepository)
 
     // Points & leaderboard
     val adjustPointsUseCase = AdjustPointsUseCase(pointsRepository)

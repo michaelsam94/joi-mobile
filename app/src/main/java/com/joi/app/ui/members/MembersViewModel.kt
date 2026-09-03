@@ -17,7 +17,16 @@ data class MembersUiState(
     val errorMessage: String? = null,
 ) {
     val filtered: List<PublicUser>
-        get() = if (query.isBlank()) allUsers else allUsers.filter { it.fullName.contains(query, ignoreCase = true) }
+        get() = if (query.isBlank()) {
+            allUsers
+        } else {
+            // Matches a draw number as well as a name: during a raffle the moderator calls out a
+            // number and needs to find whose it is, and typing "42" is the fastest way there.
+            val trimmed = query.trim().removePrefix("#")
+            allUsers.filter { user ->
+                user.fullName.contains(query, ignoreCase = true) || user.raffleNumber?.toString() == trimmed
+            }
+        }
 }
 
 class MembersViewModel(private val listMembersUseCase: ListMembersUseCase) : ViewModel() {

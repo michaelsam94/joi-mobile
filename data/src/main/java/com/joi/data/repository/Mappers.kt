@@ -33,6 +33,7 @@ internal fun PublicUserDto.toDomain() = PublicUser(
     address = address,
     className = className,
     note = note,
+    raffleNumber = raffleNumber,
 )
 
 internal fun CurrentUserDto.toDomain() = CurrentUser(id = id, fullName = fullName, role = role.toRole())
@@ -69,6 +70,13 @@ internal fun PrizeRedemptionDto.toDomain() = PrizeRedemption(
     userId = userId,
     pointsSpent = pointsSpent,
     createdAt = createdAt,
+)
+
+internal fun RaffleNumberAssignmentDto.toDomain() = RaffleNumberAssignment(
+    userId = userId,
+    fullName = fullName,
+    raffleNumber = raffleNumber,
+    alreadyHeld = alreadyHeld,
 )
 
 internal fun AbsenteeDto.toDomain() = Absentee(

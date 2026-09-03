@@ -90,8 +90,11 @@ it — much cleaner than me hand-writing placeholder XML you'd replace anyway.
   boilerplate needed — it's a modal system scanner), plus a manual token-entry fallback for
   devices without Play Services or for testing; an absentees screen with each person's all-time
   attendance count and a "send weekly report now" button that hits the same endpoint the Friday
-  cron uses.
-- **Members (moderator)**: list + search, register a new person (name/username/temp password),
+  cron uses. The check-in popup offers an optional "give a draw number" action — a temporary
+  number for that meeting's raffle or activity — and the top bar has a reset that clears everyone's
+  at once when the activity is done.
+- **Members (moderator)**: list + search — by name, or by draw number, so a called number can be
+  traced to a person mid-raffle — register a new person (name/username/temp password),
   member detail screen with their QR code, active/inactive toggle, and an add/remove-points action
   with a required reason.
 - **Prizes**: everyone can browse the catalog; moderators can add/edit/deactivate prizes and
@@ -101,7 +104,8 @@ it — much cleaner than me hand-writing placeholder XML you'd replace anyway.
   add/edit/remove events and open a per-event payment sheet listing every member — recording a
   payment (in full or in as many parts as someone needs), correcting or deleting an individual
   installment, or setting a member's running total outright.
-- **Profile (member)**: own QR code, current points/level, and full points history (every
+- **Profile (member)**: own QR code, current points/level, today's draw number if they were given
+  one (it disappears by itself once a moderator resets the numbers), and full points history (every
   attendance, manual adjustment, and redemption, exactly like the backend's audit trail).
 
 ## What's next (Phase 3, see docs/PLAN.md)
