@@ -83,7 +83,11 @@ it — much cleaner than me hand-writing placeholder XML you'd replace anyway.
 ## What's implemented (Phase 2 MVP)
 
 - **Auth**: login, forced first-login password change, session persisted via DataStore, role read
-  from the JWT-backed session and used to route into a moderator or member navigation shell.
+  from the JWT-backed session and used to route into a moderator or member navigation shell. A
+  network interceptor watches for the backend's `ACCOUNT_DEACTIVATED` response and clears the
+  session the instant it sees one — the person lands back on the login screen on their very next
+  request after a moderator deactivates them, rather than staying signed in until their token
+  naturally expires.
 - **Leaderboard**: ranked list, level badges (Bronze/Silver/Gold/Diamond), the signed-in member's
   own row highlighted, pull-to-refresh.
 - **Attendance (moderator)**: QR scan via Google Play Services' Code Scanner (no camera-permission
