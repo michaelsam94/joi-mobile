@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Person
@@ -30,6 +31,8 @@ import com.joi.app.di.AppContainer
 import com.joi.app.ui.attendance.AbsenteesScreen
 import com.joi.app.ui.attendance.CheckInScreen
 import com.joi.app.ui.auth.ChangePasswordScreen
+import com.joi.app.ui.events.EventPaymentsScreen
+import com.joi.app.ui.events.EventsScreen
 import com.joi.app.ui.auth.LoginScreen
 import com.joi.app.ui.leaderboard.LeaderboardScreen
 import com.joi.app.ui.members.MemberDetailScreen
@@ -75,6 +78,7 @@ private fun MainScaffold(container: AppContainer, session: SessionState) {
         if (isModerator) add(Tab(Destinations.SCAN, "Scan", Icons.Default.QrCodeScanner))
         if (isModerator) add(Tab(Destinations.MEMBERS, "Members", Icons.Default.Group))
         add(Tab(Destinations.PRIZES, "Prizes", Icons.Default.Redeem))
+        add(Tab(Destinations.EVENTS, "Events", Icons.Default.CalendarMonth))
         add(Tab(Destinations.PROFILE, "Profile", Icons.Default.Person))
     }
 
@@ -118,6 +122,16 @@ private fun MainScaffold(container: AppContainer, session: SessionState) {
             composable(Destinations.PRIZES) {
                 PrizesScreen(container, isModerator = isModerator)
             }
+            composable(Destinations.EVENTS) {
+                EventsScreen(
+                    container,
+                    isModerator = isModerator,
+                    // Only a moderator ever gets here — the "Manage payments" button that
+                    // navigates to it is theirs alone, and the route below is registered only
+                    // inside the moderator branch.
+                    onOpenPayments = { eventId -> navController.navigate(Destinations.eventPayments(eventId)) },
+                )
+            }
             composable(Destinations.PROFILE) {
                 ProfileScreen(container, isModerator = isModerator)
             }
@@ -142,6 +156,13 @@ private fun MainScaffold(container: AppContainer, session: SessionState) {
                         onBack = { navController.popBackStack() },
                         onRegistered = { navController.popBackStack() },
                     )
+                }
+                composable(
+                    route = Destinations.EVENT_PAYMENTS_ROUTE,
+                    arguments = listOf(navArgument(Destinations.EVENT_PAYMENTS_ARG) { type = NavType.StringType }),
+                ) { backStackEntry ->
+                    val eventId = backStackEntry.arguments?.getString(Destinations.EVENT_PAYMENTS_ARG).orEmpty()
+                    EventPaymentsScreen(container, eventId = eventId, onBack = { navController.popBackStack() })
                 }
                 composable(
                     route = Destinations.MEMBER_DETAIL_ROUTE,

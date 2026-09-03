@@ -9,6 +9,7 @@ import com.joi.data.network.JoiApiService
 import com.joi.data.network.NetworkModule
 import com.joi.data.repository.AttendanceRepositoryImpl
 import com.joi.data.repository.AuthRepositoryImpl
+import com.joi.data.repository.EventRepositoryImpl
 import com.joi.data.repository.ExportRepositoryImpl
 import com.joi.data.repository.LeaderboardRepositoryImpl
 import com.joi.data.repository.PointsRepositoryImpl
@@ -18,6 +19,7 @@ import com.joi.data.repository.UserRepositoryImpl
 import com.joi.data.session.DataStoreAuthSession
 import com.joi.domain.repository.AttendanceRepository
 import com.joi.domain.repository.AuthRepository
+import com.joi.domain.repository.EventRepository
 import com.joi.domain.repository.ExportRepository
 import com.joi.domain.repository.LeaderboardRepository
 import com.joi.domain.repository.PointsRepository
@@ -28,25 +30,35 @@ import com.joi.domain.session.AuthSession
 import com.joi.domain.usecase.AdjustPointsUseCase
 import com.joi.domain.usecase.ChangePasswordUseCase
 import com.joi.domain.usecase.CheckInUseCase
+import com.joi.domain.usecase.DeleteEventPaymentUseCase
+import com.joi.domain.usecase.DeleteEventUseCase
 import com.joi.domain.usecase.DeletePrizeUseCase
 import com.joi.domain.usecase.ExportDatabaseUseCase
 import com.joi.domain.usecase.GetAbsenteesUseCase
+import com.joi.domain.usecase.GetEventRosterUseCase
 import com.joi.domain.usecase.GetLeaderboardUseCase
 import com.joi.domain.usecase.GetRedeemedPrizeIdsUseCase
 import com.joi.domain.usecase.GetMemberPointsHistoryUseCase
 import com.joi.domain.usecase.GetMemberQrCodeUseCase
 import com.joi.domain.usecase.GetMemberUseCase
+import com.joi.domain.usecase.GetMyEventPaymentsUseCase
 import com.joi.domain.usecase.GetMyProfileUseCase
+import com.joi.domain.usecase.ListEventsUseCase
 import com.joi.domain.usecase.ListMembersUseCase
 import com.joi.domain.usecase.ListPrizesUseCase
 import com.joi.domain.usecase.LoginUseCase
 import com.joi.domain.usecase.LogoutUseCase
+import com.joi.domain.usecase.RecordEventPaymentUseCase
 import com.joi.domain.usecase.RedeemPrizeUseCase
 import com.joi.domain.usecase.RegisterMemberUseCase
+import com.joi.domain.usecase.SaveEventUseCase
 import com.joi.domain.usecase.SavePrizeUseCase
 import com.joi.domain.usecase.SendWeeklyReportNowUseCase
 import com.joi.domain.usecase.SetMemberActiveUseCase
+import com.joi.domain.usecase.SetMemberEventTotalUseCase
+import com.joi.domain.usecase.UpdateEventPaymentUseCase
 import com.joi.domain.usecase.UpdateMemberUseCase
+import com.joi.domain.usecase.UploadEventImageUseCase
 import com.joi.domain.usecase.UploadPrizeImageUseCase
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "joi_session")
@@ -77,6 +89,7 @@ class AppContainer(context: Context) {
     private val pointsRepository: PointsRepository = PointsRepositoryImpl(api)
     private val leaderboardRepository: LeaderboardRepository = LeaderboardRepositoryImpl(api)
     private val prizeRepository: PrizeRepository = PrizeRepositoryImpl(api)
+    private val eventRepository: EventRepository = EventRepositoryImpl(api)
     private val telegramRepository: TelegramRepository = TelegramRepositoryImpl(api)
     private val exportRepository: ExportRepository = ExportRepositoryImpl(api)
 
@@ -111,6 +124,18 @@ class AppContainer(context: Context) {
     val redeemPrizeUseCase = RedeemPrizeUseCase(prizeRepository)
     val uploadPrizeImageUseCase = UploadPrizeImageUseCase(prizeRepository)
     val getRedeemedPrizeIdsUseCase = GetRedeemedPrizeIdsUseCase(prizeRepository)
+
+    // Events
+    val listEventsUseCase = ListEventsUseCase(eventRepository)
+    val saveEventUseCase = SaveEventUseCase(eventRepository)
+    val deleteEventUseCase = DeleteEventUseCase(eventRepository)
+    val uploadEventImageUseCase = UploadEventImageUseCase(eventRepository)
+    val getMyEventPaymentsUseCase = GetMyEventPaymentsUseCase(eventRepository)
+    val getEventRosterUseCase = GetEventRosterUseCase(eventRepository)
+    val recordEventPaymentUseCase = RecordEventPaymentUseCase(eventRepository)
+    val setMemberEventTotalUseCase = SetMemberEventTotalUseCase(eventRepository)
+    val updateEventPaymentUseCase = UpdateEventPaymentUseCase(eventRepository)
+    val deleteEventPaymentUseCase = DeleteEventPaymentUseCase(eventRepository)
 
     // Admin
     val exportDatabaseUseCase = ExportDatabaseUseCase(exportRepository)

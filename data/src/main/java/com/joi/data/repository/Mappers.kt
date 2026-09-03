@@ -84,3 +84,52 @@ internal fun CheckInResponseDto.toDomain() = CheckInResult(
     pointsAwarded = pointsAwarded,
     totalPoints = totalPoints,
 )
+
+internal fun EventDto.toDomain() = Event(
+    id = id,
+    name = name,
+    description = description,
+    location = location,
+    price = price,
+    eventDate = eventDate,
+    eventTime = eventTime,
+    imageUrl = imageUrl,
+    active = active,
+    myPaidAmount = myPaidAmount,
+    myRemainingAmount = myRemainingAmount,
+    myFullyPaid = myFullyPaid,
+)
+
+internal fun EventPaymentDto.toDomain() = EventPayment(
+    id = id,
+    eventId = eventId,
+    userId = userId,
+    amount = amount,
+    note = note,
+    createdAt = createdAt,
+)
+
+internal fun EventRosterEntryDto.toDomain() = EventRosterEntry(
+    userId = userId,
+    fullName = fullName,
+    paidAmount = paidAmount,
+    remainingAmount = remainingAmount,
+    fullyPaid = fullyPaid,
+    payments = payments.map { it.toDomain() },
+)
+
+internal fun EventRosterDto.toDomain() = EventRoster(
+    event = event.toDomain(),
+    entries = entries.map { it.toDomain() },
+    totalCollected = totalCollected,
+    totalExpected = totalExpected,
+)
+
+internal fun MyEventPaymentsDto.toDomain() = MyEventPayments(
+    eventId = eventId,
+    price = price,
+    paidAmount = paidAmount,
+    remainingAmount = remainingAmount,
+    fullyPaid = fullyPaid,
+    payments = payments.map { it.toDomain() },
+)

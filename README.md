@@ -49,7 +49,7 @@ joi-android/
   app/                            The application module: DI composition root (AppContainer,
                                   same idea as the backend's config/container.ts), navigation,
                                   and every feature's UI + ViewModel, organized by package:
-    ui/auth/, ui/leaderboard/, ui/attendance/, ui/members/, ui/prizes/, ui/profile/
+    ui/auth/, ui/leaderboard/, ui/attendance/, ui/members/, ui/prizes/, ui/events/, ui/profile/
 ```
 
 Dependency rule: `domain` depends on nothing else in this project. `data` and `designsystem`
@@ -96,6 +96,11 @@ it — much cleaner than me hand-writing placeholder XML you'd replace anyway.
   with a required reason.
 - **Prizes**: everyone can browse the catalog; moderators can add/edit/deactivate prizes and
   redeem one for a member (with the same insufficient-balance check the backend enforces).
+- **Events**: everyone sees the upcoming events (name, date/time, location, price, poster) with
+  their own payment progress on each card, and can open their installment history. Moderators can
+  add/edit/remove events and open a per-event payment sheet listing every member — recording a
+  payment (in full or in as many parts as someone needs), correcting or deleting an individual
+  installment, or setting a member's running total outright.
 - **Profile (member)**: own QR code, current points/level, and full points history (every
   attendance, manual adjustment, and redemption, exactly like the backend's audit trail).
 

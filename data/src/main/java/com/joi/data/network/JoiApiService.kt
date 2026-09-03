@@ -63,6 +63,50 @@ interface JoiApiService {
     @GET("prizes/redeemed-by-me")
     suspend fun getRedeemedPrizeIds(): Response<RedeemedPrizeIdsResponseDto>
 
+    @GET("events")
+    suspend fun listEvents(
+        @Query("upcomingOnly") upcomingOnly: Boolean = true,
+        @Query("activeOnly") activeOnly: Boolean = true,
+    ): Response<List<EventDto>>
+
+    @POST("events")
+    suspend fun createEvent(@Body body: CreateEventRequestDto): Response<EventDto>
+
+    @PATCH("events/{id}")
+    suspend fun updateEvent(@Path("id") id: String, @Body body: UpdateEventRequestDto): Response<EventDto>
+
+    @DELETE("events/{id}")
+    suspend fun deleteEvent(@Path("id") id: String): Response<Unit>
+
+    @GET("events/{id}/payments")
+    suspend fun getEventRoster(@Path("id") id: String): Response<EventRosterDto>
+
+    @GET("events/{id}/payments/me")
+    suspend fun getMyEventPayments(@Path("id") id: String): Response<MyEventPaymentsDto>
+
+    @POST("events/{id}/payments")
+    suspend fun recordEventPayment(
+        @Path("id") id: String,
+        @Body body: RecordEventPaymentRequestDto,
+    ): Response<EventPaymentDto>
+
+    @PUT("events/{id}/payments/member/{userId}")
+    suspend fun setMemberEventTotal(
+        @Path("id") id: String,
+        @Path("userId") userId: String,
+        @Body body: SetMemberEventTotalRequestDto,
+    ): Response<MyEventPaymentsDto>
+
+    @PATCH("events/{id}/payments/{paymentId}")
+    suspend fun updateEventPayment(
+        @Path("id") id: String,
+        @Path("paymentId") paymentId: String,
+        @Body body: UpdateEventPaymentRequestDto,
+    ): Response<EventPaymentDto>
+
+    @DELETE("events/{id}/payments/{paymentId}")
+    suspend fun deleteEventPayment(@Path("id") id: String, @Path("paymentId") paymentId: String): Response<Unit>
+
     @POST("telegram/send-weekly-report")
     suspend fun sendWeeklyReport(): Response<WeeklyReportResponseDto>
 

@@ -175,3 +175,90 @@ data class WeeklyReportResponseDto(
 
 @Serializable
 data class ExportUrlResponseDto(val url: String)
+
+@Serializable
+data class EventDto(
+    val id: String,
+    val name: String,
+    val description: String? = null,
+    val location: String? = null,
+    val price: Double,
+    val eventDate: String,
+    val eventTime: String? = null,
+    val imageUrl: String? = null,
+    val active: Boolean,
+    // Present on GET /events (the caller's own balance); absent on create/update responses.
+    val myPaidAmount: Double = 0.0,
+    val myRemainingAmount: Double = 0.0,
+    val myFullyPaid: Boolean = false,
+)
+
+@Serializable
+data class CreateEventRequestDto(
+    val name: String,
+    val description: String? = null,
+    val location: String? = null,
+    val price: Double,
+    val eventDate: String,
+    val eventTime: String? = null,
+    val imageUrl: String? = null,
+)
+
+@Serializable
+data class UpdateEventRequestDto(
+    val name: String? = null,
+    val description: String? = null,
+    val location: String? = null,
+    val price: Double? = null,
+    val eventDate: String? = null,
+    val eventTime: String? = null,
+    val imageUrl: String? = null,
+    val active: Boolean? = null,
+)
+
+@Serializable
+data class EventPaymentDto(
+    val id: String,
+    val eventId: String,
+    val userId: String,
+    val amount: Double,
+    val note: String? = null,
+    val createdAt: String,
+)
+
+@Serializable
+data class EventRosterEntryDto(
+    val userId: String,
+    val fullName: String,
+    val paidAmount: Double,
+    val remainingAmount: Double,
+    val fullyPaid: Boolean,
+    val payments: List<EventPaymentDto> = emptyList(),
+)
+
+@Serializable
+data class EventRosterDto(
+    val event: EventDto,
+    val entries: List<EventRosterEntryDto>,
+    val totalCollected: Double,
+    val totalExpected: Double,
+)
+
+@Serializable
+data class MyEventPaymentsDto(
+    val eventId: String,
+    val price: Double,
+    val paidAmount: Double,
+    val remainingAmount: Double,
+    val fullyPaid: Boolean,
+    val payments: List<EventPaymentDto> = emptyList(),
+)
+
+@Serializable
+data class RecordEventPaymentRequestDto(val userId: String, val amount: Double, val note: String? = null)
+
+@Serializable
+data class UpdateEventPaymentRequestDto(val amount: Double? = null, val note: String? = null)
+
+@Serializable
+data class SetMemberEventTotalRequestDto(val total: Double)
