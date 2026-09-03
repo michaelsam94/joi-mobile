@@ -94,7 +94,9 @@ fun MembersScreen(container: AppContainer, onOpenMember: (String) -> Unit, onReg
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                 ) {
                                     Text(
-                                        text = user.fullName + if (!user.active) " (inactive)" else "",
+                                        text = (if (user.isProtected) "🔒 " else "") +
+                                            user.fullName +
+                                            if (!user.active) " (inactive)" else "",
                                         style = MaterialTheme.typography.titleMedium,
                                     )
                                     // Shown only while draw numbers are out, so a moderator can

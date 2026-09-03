@@ -46,6 +46,9 @@ data class PublicUserDto(
     val className: String? = null,
     val note: String? = null,
     val raffleNumber: Int? = null,
+    /** Only ever true for the seeded first moderator — never settable through the API. When set,
+     * the backend refuses every PATCH /users/:id change to this account. */
+    val isProtected: Boolean = false,
 )
 
 @Serializable

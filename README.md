@@ -97,7 +97,9 @@ it — much cleaner than me hand-writing placeholder XML you'd replace anyway.
   and each drawn number can be kept in for the next round or taken out so it can't win twice.
   Taking one out is local to that screen; the member keeps their number.
 - **Members (moderator)**: list + search — by name, or by draw number, so a called number can be
-  traced to a person mid-raffle — register a new person (name/username/temp password),
+  traced to a person mid-raffle. The seeded admin account shows a 🔒 and offers no edit or
+  deactivate action — the backend refuses those for a protected account regardless, so the app
+  doesn't offer a button that would only fail. Register a new person (name/username/temp password),
   member detail screen with their QR code, active/inactive toggle, and an add/remove-points action
   with a required reason.
 - **Prizes**: everyone can browse the catalog; moderators can add/edit/deactivate prizes and

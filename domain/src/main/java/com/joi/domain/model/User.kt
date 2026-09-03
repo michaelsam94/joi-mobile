@@ -30,6 +30,10 @@ data class PublicUser(
      * meeting. Null once a moderator has reset the numbers — which is exactly how it disappears
      * from a member's profile again. */
     val raffleNumber: Int? = null,
+    /** True only for the protected admin account (see the backend's UpdateUserUseCase) — the app
+     * uses this to hide edit/deactivate/reset controls rather than let a moderator attempt an
+     * action the server will refuse anyway. */
+    val isProtected: Boolean = false,
 )
 
 /** The signed-in person's own session identity — a thin slice kept for quick UI access. */

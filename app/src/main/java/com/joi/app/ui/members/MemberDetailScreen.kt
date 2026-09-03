@@ -70,7 +70,9 @@ fun MemberDetailScreen(container: AppContainer, userId: String, onBack: () -> Un
                 title = user?.fullName ?: "Member",
                 onBack = onBack,
                 actions = {
-                    if (user != null) {
+                    // A protected account (the seeded admin) can't be edited at all — the server
+                    // refuses every field change, so there's no edit action to offer here.
+                    if (user != null && !user.isProtected) {
                         IconButton(onClick = viewModel::openEditDialog) {
                             Icon(Icons.Default.Edit, contentDescription = "Edit member")
                         }
@@ -115,14 +117,31 @@ fun MemberDetailScreen(container: AppContainer, userId: String, onBack: () -> Un
                     }
                 }
 
+                if (user.isProtected) {
+                    item {
+                        Card(modifier = Modifier.fillMaxWidth()) {
+                            Text(
+                                "🔒 Protected account — it can't be edited, deactivated, or reset.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(16.dp),
+                            )
+                        }
+                    }
+                }
+
                 item {
                     JoiPrimaryButton(text = "Add / remove points", onClick = viewModel::openAdjustDialog)
                 }
-                item {
-                    JoiSecondaryButton(
-                        text = if (user.active) "Deactivate" else "Reactivate",
-                        onClick = viewModel::toggleActive,
-                    )
+                // Points can still be adjusted for a protected account (that's audit trail, not
+                // account data) — only deactivating/editing/resetting are blocked.
+                if (!user.isProtected) {
+                    item {
+                        JoiSecondaryButton(
+                            text = if (user.active) "Deactivate" else "Reactivate",
+                            onClick = viewModel::toggleActive,
+                        )
+                    }
                 }
 
                 item {

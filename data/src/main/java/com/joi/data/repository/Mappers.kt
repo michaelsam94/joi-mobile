@@ -34,6 +34,7 @@ internal fun PublicUserDto.toDomain() = PublicUser(
     className = className,
     note = note,
     raffleNumber = raffleNumber,
+    isProtected = isProtected,
 )
 
 internal fun CurrentUserDto.toDomain() = CurrentUser(id = id, fullName = fullName, role = role.toRole())
